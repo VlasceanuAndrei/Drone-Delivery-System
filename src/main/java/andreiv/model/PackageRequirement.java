@@ -11,11 +11,10 @@ public enum PackageRequirement {
     private static final EnumSet<PackageRequirement> VALUES = EnumSet.allOf(PackageRequirement.class);
 
     public static PackageRequirement validateRequirement(String requirement) {
-        if (requirement != null) {
-            if (VALUES.contains(PackageRequirement.valueOf(requirement.toUpperCase()))) {
-                return PackageRequirement.valueOf(requirement.toUpperCase());
-            }
+        try {
+            return PackageRequirement.valueOf(requirement.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
         }
-        return null;
     }
 }

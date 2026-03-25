@@ -21,7 +21,7 @@ public class Address {
         return new Address(this.country, this.city, newStreet, newNumber);
     }
 
-    public String getAddress() {
-        return country + ", " + city + ", " + street + ", " + number;
+    public String getCity() {
+        return city;
     }
 }

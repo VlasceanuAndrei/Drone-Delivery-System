@@ -15,7 +15,7 @@ public class Contact {
         this.emailAddress = validateEmailAddress(emailAddress);
         this.phoneNumber = validatePhoneNumber(phoneNumber);
         this.isCompany = isCompany;
-        this.vatNumber = validatevatNumber(vatNumber);
+        this.vatNumber = validateVatNumber(vatNumber);
     }
 
     private String validateEmailAddress(String emailAddress) {
@@ -34,7 +34,7 @@ public class Contact {
         throw new IllegalArgumentException("Invalid value provided for the phoneNumber");
     }
 
-    private String validatevatNumber(String vatNumber) {
+    private String validateVatNumber(String vatNumber) {
         if (this.isCompany && vatNumber != null &&
                 vatNumber.matches("^[0-9A-Z]{4,15}")) {
             return vatNumber;
@@ -42,6 +42,30 @@ public class Contact {
             return "N/A";
         }
         throw new IllegalArgumentException("Invalid value provided for the vatNumber");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getVatNumber() {
+        return vatNumber;
+    }
+
+    public boolean isCompany() {
+        return isCompany;
     }
 
 }

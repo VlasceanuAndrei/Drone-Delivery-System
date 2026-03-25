@@ -15,7 +15,7 @@ public class Drone {
         this.flightRange = validateFlightRange(flightRange);
         this.maximumPayload = maximumPayload;
         this.maximumSpeed = maximumSpeed;
-        this.dateOfPurchase = setDateOfPurchase(LocalDate.now());
+        this.dateOfPurchase = validateDateOfPurchase(LocalDate.now());
     }
 
     public Drone(String name, int flightRange, double maximumPayload,
@@ -24,15 +24,19 @@ public class Drone {
         this.flightRange = validateFlightRange(flightRange);
         this.maximumPayload = maximumPayload;
         this.maximumSpeed = maximumSpeed;
-        this.dateOfPurchase = setDateOfPurchase(dateOfPurchase);
+        this.dateOfPurchase = validateDateOfPurchase(dateOfPurchase);
     }
 
     public int getFlightRange() {
         return flightRange;
     }
 
-    public double[] getMaximumDroneCapacities() {
-        return new double[]{maximumPayload, maximumSpeed};
+    public double getMaximumPayload() {
+        return maximumPayload;
+    }
+
+    public double getMaximumSpeed() {
+        return maximumSpeed;
     }
 
     private static int validateFlightRange(int flightRange) {
@@ -42,7 +46,7 @@ public class Drone {
         return flightRange;
     }
 
-    private static LocalDate setDateOfPurchase(LocalDate dateOfPurchase) {
+    private static LocalDate validateDateOfPurchase(LocalDate dateOfPurchase) {
         final int currentYear = LocalDate.now().getYear();
         if (currentYear - dateOfPurchase.getYear() > 10 || currentYear - dateOfPurchase.getYear() < 0) {
             throw new IllegalArgumentException("Invalid year provided for dateOfPurchase.");
