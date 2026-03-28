@@ -2,6 +2,7 @@ package andreiv.model.order;
 
 import java.util.UUID;
 import java.util.Set;
+import java.util.HashSet;
 import andreiv.model.PackageRequirement;
 import java.util.Collections;
 
@@ -40,7 +41,7 @@ public class Package {
     }
 
     private Set<PackageRequirement> assignRequirements(String[] requirements) {
-        Set<PackageRequirement> assignableRequirements = null;
+        Set<PackageRequirement> assignableRequirements = new HashSet<>();
         for (String requirement : requirements) {
             if (PackageRequirement.validateRequirement(requirement) != null){
                 assignableRequirements.add(PackageRequirement.validateRequirement(requirement));

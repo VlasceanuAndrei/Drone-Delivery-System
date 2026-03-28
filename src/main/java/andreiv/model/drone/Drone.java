@@ -7,24 +7,31 @@ public class Drone {
     private final int flightRange;
     private double maximumPayload;
     private double maximumSpeed;
+    private boolean isAvailable;
     private final LocalDate dateOfPurchase;
 
-    public Drone(String name, int flightRange, double maximumPayload,
+    public Drone(String name, int flightRange, double maximumPayload, boolean isAvailable,
                  double maximumSpeed) {
         this.name = name;
         this.flightRange = validateFlightRange(flightRange);
         this.maximumPayload = maximumPayload;
         this.maximumSpeed = maximumSpeed;
+        this.isAvailable = isAvailable;
         this.dateOfPurchase = validateDateOfPurchase(LocalDate.now());
     }
 
-    public Drone(String name, int flightRange, double maximumPayload,
-                 double maximumSpeed, LocalDate dateOfPurchase) {
+    public Drone(String name, int flightRange, double maximumPayload, double maximumSpeed,
+                 boolean isAvailable, LocalDate dateOfPurchase) {
         this.name = name;
         this.flightRange = validateFlightRange(flightRange);
         this.maximumPayload = maximumPayload;
         this.maximumSpeed = maximumSpeed;
+        this.isAvailable = isAvailable;
         this.dateOfPurchase = validateDateOfPurchase(dateOfPurchase);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public int getFlightRange() {
@@ -37,6 +44,10 @@ public class Drone {
 
     public double getMaximumSpeed() {
         return maximumSpeed;
+    }
+
+    public boolean getAvailability() {
+        return isAvailable;
     }
 
     private static int validateFlightRange(int flightRange) {

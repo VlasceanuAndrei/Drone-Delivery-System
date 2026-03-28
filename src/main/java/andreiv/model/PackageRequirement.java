@@ -1,19 +1,19 @@
 package andreiv.model;
 
-import java.util.EnumSet;
-
 public enum PackageRequirement {
+    NONE,
     REFRIGERATED,
     EXPRESS_DELIVERY,
     FRAGILE,
     HAZARDOUS;
 
-    private static final EnumSet<PackageRequirement> VALUES = EnumSet.allOf(PackageRequirement.class);
-
     public static PackageRequirement validateRequirement(String requirement) {
+        if (requirement == null) {
+            return NONE;
+        }
         try {
             return PackageRequirement.valueOf(requirement.toUpperCase());
-        } catch (IllegalArgumentException | NullPointerException e) {
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }
