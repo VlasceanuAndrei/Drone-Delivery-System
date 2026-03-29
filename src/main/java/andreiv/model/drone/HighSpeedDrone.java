@@ -6,8 +6,14 @@ public class HighSpeedDrone extends Drone{
     private final boolean hasBoostMode;
 
     public HighSpeedDrone(String name, int flightRange, double maximumPayload,
-                          double maximumSpeed, LocalDate dateOfPurchase, boolean hasBoostMode) {
-        super(name, flightRange, maximumPayload, maximumSpeed, dateOfPurchase);
+                          double maximumSpeed, boolean isAvailable, LocalDate dateOfPurchase, boolean hasBoostMode) {
+        super(name, flightRange, maximumPayload, maximumSpeed, isAvailable, dateOfPurchase);
+        this.hasBoostMode = hasBoostMode;
+    }
+
+    public HighSpeedDrone(String name, int flightRange, double maximumPayload,
+                          double maximumSpeed, boolean isAvailable, boolean hasBoostMode) {
+        super(name, flightRange, maximumPayload, maximumSpeed, isAvailable);
         this.hasBoostMode = hasBoostMode;
     }
 

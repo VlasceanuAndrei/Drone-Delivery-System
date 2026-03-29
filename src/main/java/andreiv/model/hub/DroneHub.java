@@ -10,7 +10,7 @@ import andreiv.model.PackageRequirement;
 public class DroneHub {
     private String name;
     private final List<Drone> fleet;
-    private final List<andreiv.model.order.Package> packages;
+    private final List<Package> packages;
     private final List<Personnel> crew;
     private Address address;
 
@@ -81,5 +81,9 @@ public class DroneHub {
             }
         }
         return filteredPackages;
+    }
+
+    public Address getAddress() {
+        return address;
     }
 }

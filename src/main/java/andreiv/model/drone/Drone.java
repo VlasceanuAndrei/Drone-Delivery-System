@@ -10,8 +10,8 @@ public class Drone {
     private boolean isAvailable;
     private final LocalDate dateOfPurchase;
 
-    public Drone(String name, int flightRange, double maximumPayload, boolean isAvailable,
-                 double maximumSpeed) {
+    public Drone(String name, int flightRange, double maximumPayload,
+                 double maximumSpeed, boolean isAvailable) {
         this.name = name;
         this.flightRange = validateFlightRange(flightRange);
         this.maximumPayload = maximumPayload;
