@@ -1,18 +1,28 @@
 package andreiv.model.hub;
 
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.time.LocalDate;
+
 import andreiv.model.drone.*;
 import andreiv.model.order.*;
 import andreiv.model.order.Package;
 import andreiv.model.personnel.*;
 import andreiv.model.PackageRequirement;
+import andreiv.model.PersonnelCertification;
 
 public class DroneHub {
-    private String name;
+    private final String name;
     private final List<Drone> fleet;
     private final List<Package> packages;
     private final List<Personnel> crew;
-    private Address address;
+    private final Address address;
+    private final List<Drone> dronesUnderMaintenance;
+    private final static int MAINTENANCE_THRESHOLD = 18;
+
+    public DroneHub(String name, Address address) {
+        this(name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), address);
+    }
 
     public DroneHub(String name, List<Drone> fleet, List<andreiv.model.order.Package> packages,
                     List<Personnel> crew, Address address) {
@@ -21,14 +31,7 @@ public class DroneHub {
         this.packages = packages;
         this.crew = crew;
         this.address = address;
-    }
-
-    public DroneHub(String name, Address address) {
-        this.name = name;
-        this.address = address;
-        this.fleet = new ArrayList<>();
-        this.packages = new ArrayList<>();
-        this.crew = new ArrayList<>();
+        this.dronesUnderMaintenance = new ArrayList<>();
     }
 
     public void displayFleet() {
@@ -75,13 +78,55 @@ public class DroneHub {
 
     public List<Package> getPackagesByCategory(PackageRequirement requirement) {
         List<Package> filteredPackages = new ArrayList<>();
-        for (Package pack : packages) {
-            if (pack.getRequirements().contains(requirement)) {
-                filteredPackages.add(pack);
+        for (Package pkg : packages) {
+            if (pkg.getRequirements().contains(requirement)) {
+                filteredPackages.add(pkg);
             }
         }
         return filteredPackages;
     }
+
+    public void checkFleetMaintenance() {
+        final LocalDate currentDate = LocalDate.now();
+
+        fleet.removeIf(drone -> {
+            final LocalDate lastMaintenance = drone.getLastMaintenance();
+            long monthsBetween = ChronoUnit.MONTHS.between(lastMaintenance, currentDate);
+            if (monthsBetween >= MAINTENANCE_THRESHOLD) {
+                dronesUnderMaintenance.add(drone);
+                drone.setAvailability(false);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    public void performMaintenance() {
+        final Iterator<Personnel> mechanicIterator = crew.stream()
+                .filter(p -> p.isAvailable() && p.getCertification() == PersonnelCertification.MECHANIC)
+                .iterator();
+        final Map<Personnel, Drone> assignments = new HashMap<>();
+
+        dronesUnderMaintenance.removeIf(drone -> {
+                if (mechanicIterator.hasNext()) {
+                    Personnel mechanic = mechanicIterator.next();
+                    mechanic.assignToWork();
+                    assignments.put(mechanic, drone);
+                    fleet.add(drone);
+                    drone.setAvailability(true);
+                    return true;
+                }
+                return false;
+        });
+
+        assignments.keySet().forEach(Personnel::releaseFromWork);
+
+        if (!dronesUnderMaintenance.isEmpty()) {
+            System.out.println("Not all drones could be repaired. There are " + dronesUnderMaintenance.size() + " drones remaining.");
+        }
+    }
+
+    public String getName() { return name; }
 
     public Address getAddress() {
         return address;

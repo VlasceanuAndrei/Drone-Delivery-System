@@ -1,6 +1,5 @@
 package andreiv.model;
 
-
 public enum PersonnelCertification {
     NONE,
     MECHANIC,

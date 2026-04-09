@@ -4,14 +4,16 @@ import java.util.UUID;
 import andreiv.model.PersonnelCertification;
 
 public class Personnel {
-    private UUID id;
-    private String fullName;
-    private PersonnelCertification certification;
+    private final UUID id;
+    private final String fullName;
+    private final PersonnelCertification certification;
+    private boolean isAvailable;
 
-    public Personnel(UUID id, String fullName, String certification) {
+    public Personnel(String fullName, String certification) {
         this.id = UUID.randomUUID();
         this.fullName = fullName;
         this.certification = PersonnelCertification.validateCertification(certification);
+        this.isAvailable = true;
     }
 
     public String getFullName() {
@@ -22,4 +24,19 @@ public class Personnel {
         return certification;
     }
 
+    public boolean isAvailable() { return isAvailable; }
+
+    public void assignToWork() {
+        if (!isAvailable) {
+            throw new IllegalStateException(fullName + " is already assigned to a task.");
+        }
+        isAvailable = false;
+    }
+
+    public void releaseFromWork() {
+        if (isAvailable) {
+            throw new IllegalStateException(fullName + " is not currently assigned.");
+        }
+        isAvailable = true;
+    }
 }

@@ -16,4 +16,17 @@ public class CargoDrone extends Drone{
         super(name, flightRange, maximumPayload, maximumSpeed, isAvailable);
         this.hasRefrigerator = hasRefrigerator;
     }
+
+    public boolean isRefrigerated() {
+        return hasRefrigerator;
+    }
+
+    @Override
+    protected boolean canHandleRefrigeratedPackage() { return isRefrigerated(); }
+
+    @Override
+    protected boolean canHandleFragilePackage() { return false; }
+
+    @Override
+    protected boolean canHandleHazardousPackage() { return true; }
 }

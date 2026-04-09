@@ -17,11 +17,15 @@ public class Order {
         this.pkg = pkg;
     }
 
-    public String getReceiverCity() {
-        return receiver.getAddress().getCity();
+    public Contact getSender() {
+        return sender;
     }
 
-    public Set<PackageRequirement> getPackageRequirements() {
-        return pkg.getRequirements();
+    public Contact getReceiver() {
+        return receiver;
+    }
+
+    public Package getPackage() {
+        return pkg;
     }
 }

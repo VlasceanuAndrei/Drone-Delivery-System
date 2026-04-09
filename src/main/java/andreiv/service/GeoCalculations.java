@@ -1,7 +1,7 @@
 package andreiv.service;
 
 public class GeoCalculations {
-    double calculateDistance(double lat1, double long1,
+    static double calculateDistance(double lat1, double long1,
                              double lat2, double long2) {
         final double EARTHS_RADIUS = 6371.0;
 
@@ -20,7 +20,7 @@ public class GeoCalculations {
         return 2 * EARTHS_RADIUS * Math.asin(Math.sqrt(x));
     }
 
-    double calculateAngle(double lat1, double long1,
+    static double calculateAngle(double lat1, double long1,
                           double lat2, double long2) {
         lat1 = Math.toRadians(lat1);
         lat2 = Math.toRadians(lat2);

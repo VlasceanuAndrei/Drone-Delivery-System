@@ -15,12 +15,7 @@ public class Package {
     private final Set<PackageRequirement> requirements;
 
     public Package(double weight, double width, double length, double height) {
-        this.id = UUID.randomUUID();
-        this.weight = validateDimension(weight);
-        this.width = validateDimension(width);
-        this.length = validateDimension(length);
-        this.height = validateDimension(height);
-        this.requirements = Collections.emptySet();
+        this(weight, width, length, height, new String[0]);
     }
 
     public Package(double weight, double width, double length, double height,

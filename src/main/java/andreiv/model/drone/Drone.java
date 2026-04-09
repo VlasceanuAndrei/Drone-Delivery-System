@@ -1,33 +1,30 @@
 package andreiv.model.drone;
 
 import java.time.*;
+import andreiv.model.order.Package;
+import andreiv.model.PackageRequirement;
 
 public class Drone {
-    private String name;
+    private final String name;
     private final int flightRange;
-    private double maximumPayload;
-    private double maximumSpeed;
+    private final double maximumPayload;
+    private final double maximumSpeed;
     private boolean isAvailable;
-    private final LocalDate dateOfPurchase;
+    private final LocalDate lastMaintenance;
 
     public Drone(String name, int flightRange, double maximumPayload,
                  double maximumSpeed, boolean isAvailable) {
-        this.name = name;
-        this.flightRange = validateFlightRange(flightRange);
-        this.maximumPayload = maximumPayload;
-        this.maximumSpeed = maximumSpeed;
-        this.isAvailable = isAvailable;
-        this.dateOfPurchase = validateDateOfPurchase(LocalDate.now());
+        this(name, flightRange, maximumPayload, maximumSpeed, isAvailable, LocalDate.now());
     }
 
     public Drone(String name, int flightRange, double maximumPayload, double maximumSpeed,
-                 boolean isAvailable, LocalDate dateOfPurchase) {
+                 boolean isAvailable, LocalDate lastMaintenance) {
         this.name = name;
         this.flightRange = validateFlightRange(flightRange);
         this.maximumPayload = maximumPayload;
         this.maximumSpeed = maximumSpeed;
         this.isAvailable = isAvailable;
-        this.dateOfPurchase = validateDateOfPurchase(dateOfPurchase);
+        this.lastMaintenance = validateLastMaintenance(lastMaintenance);
     }
 
     public String getName() {
@@ -46,8 +43,14 @@ public class Drone {
         return maximumSpeed;
     }
 
+    public LocalDate getLastMaintenance() { return lastMaintenance; }
+
     public boolean getAvailability() {
         return isAvailable;
+    }
+
+    public void setAvailability(boolean availability) {
+        isAvailable = availability;
     }
 
     private static int validateFlightRange(int flightRange) {
@@ -57,11 +60,46 @@ public class Drone {
         return flightRange;
     }
 
-    private static LocalDate validateDateOfPurchase(LocalDate dateOfPurchase) {
+    private static LocalDate validateLastMaintenance(LocalDate lastMaintenance) {
         final int currentYear = LocalDate.now().getYear();
-        if (currentYear - dateOfPurchase.getYear() > 10 || currentYear - dateOfPurchase.getYear() < 0) {
-            throw new IllegalArgumentException("Invalid year provided for dateOfPurchase.");
+        if (currentYear - lastMaintenance.getYear() > 10 || currentYear - lastMaintenance.getYear() < 0) {
+            throw new IllegalArgumentException("Invalid date provided for lastMaintenance.");
         }
-        return dateOfPurchase;
+        return lastMaintenance;
     }
+
+    public boolean canReach(double distance) {
+        return distance <= flightRange;
+    }
+
+    public boolean canCarry(Package pkg) {
+        return pkg.getWeight() <= maximumPayload;
+    }
+
+    public boolean satisfiesPackageRequirements(Package pkg) {
+        for (PackageRequirement r : pkg.getRequirements()) {
+            if (!requirementSatisfied(r)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean requirementSatisfied(PackageRequirement r) {
+        return switch (r) {
+            case REFRIGERATED -> canHandleRefrigeratedPackage();
+            case EXPRESS_DELIVERY -> canHandleExpressDelivery();
+            case FRAGILE -> canHandleFragilePackage();
+            case HAZARDOUS -> canHandleHazardousPackage();
+            default -> true;
+        };
+    }
+
+    protected boolean canHandleRefrigeratedPackage() { return false; }
+
+    protected boolean canHandleExpressDelivery() { return false; }
+
+    protected boolean canHandleFragilePackage() { return true; }
+
+    protected boolean canHandleHazardousPackage() { return false; }
 }

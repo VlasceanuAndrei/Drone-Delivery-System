@@ -6,9 +6,9 @@ import java.util.*;
 
 public class CityCoordinates {
     private static final String JSON_FILE_PATH = "src/main/resources/cities.json";
-    private final Map<String, double[]> cache = new HashMap<>();
+    private static final Map<String, double[]> cache = new HashMap<>();
 
-    public Optional<double[]> getCoordinates(String city) {
+    public static Optional<double[]> getCoordinates(String city) {
         String key = city.toLowerCase();
 
         if (cache.containsKey(key)) {
@@ -22,7 +22,7 @@ public class CityCoordinates {
         return coordinates;
     }
 
-    private Optional<double[]> searchInFile(String city) {
+    private static Optional<double[]> searchInFile(String city) {
         try (JsonParser parser = new JsonFactory()
                 .createParser(new File(JSON_FILE_PATH))) {
             String currentCity = null;

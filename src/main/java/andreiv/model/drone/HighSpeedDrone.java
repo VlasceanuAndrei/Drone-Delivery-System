@@ -2,7 +2,7 @@ package andreiv.model.drone;
 
 import java.time.*;
 
-public class HighSpeedDrone extends Drone{
+public class HighSpeedDrone extends Drone {
     private final boolean hasBoostMode;
 
     public HighSpeedDrone(String name, int flightRange, double maximumPayload,
@@ -25,4 +25,9 @@ public class HighSpeedDrone extends Drone{
         }
     }
 
+    @Override
+    protected boolean canHandleExpressDelivery() { return true; }
+
+    @Override
+    protected boolean canHandleFragilePackage() { return false; }
 }
