@@ -3,6 +3,7 @@ package andreiv.service;
 import andreiv.model.drone.Drone;
 import andreiv.model.hub.DroneHub;
 import andreiv.model.order.Order;
+import static andreiv.service.HubGridIndex.*;
 import java.util.*;
 
 public class OrderDispatcher {
@@ -14,6 +15,7 @@ public class OrderDispatcher {
     private OrderDispatcher() {
         this.hubs = new HashSet<>();
         this.uncollectedOrders = new HashSet<>();
+        HubGridIndex.initializeGrid(hubs);
     }
 
     public static OrderDispatcher getInstance() {
@@ -25,10 +27,12 @@ public class OrderDispatcher {
 
     public void addHub(DroneHub hub) {
         hubs.add(hub);
+        HubGridIndex.addHubToGrid(hub);
     }
 
     public void removeHub(DroneHub hub) {
         hubs.remove(hub);
+        HubGridIndex.removeHubFromGrid(hub);
     }
 
     public void addUncollectedOrder(Order order) {
@@ -39,38 +43,60 @@ public class OrderDispatcher {
         uncollectedOrders.remove(order);
     }
 
+    private OptionalLong getGridIndexKey(String city) {
+        Optional<double[]> coordinates = CityCoordinates.getCoordinates(city);
+
+        if (coordinates.isPresent()) {
+            int gx = (int) Math.floor(coordinates.get()[0] / CELL_SIZE);
+            int gy = (int) Math.floor(coordinates.get()[1] / CELL_SIZE);
+
+            long gridIndex = (((long)gx) << 32) | (gy & 0xFFFFFFFFL);
+
+            return OptionalLong.of(gridIndex);
+        }
+        return OptionalLong.empty();
+    }
+
     public void assignUncollectedOrdersToHubs() {
-        TreeMap<Double, DroneHub> distanceMapping;
-        List<Order> fulfilledOrders = new ArrayList<>();
         for (Order order : uncollectedOrders) {
-            distanceMapping = new TreeMap<>();
             String senderCity = order.getSender().getAddress().getCity();
-            double[] senderCoordinates = CityCoordinates.getCoordinates(senderCity).orElse(null);
-            if (senderCoordinates == null) {
-                throw new RuntimeException("Couldn't find coordinates for the sender city: " + senderCity + ".");
+            Optional<double[]> senderCoordinates = CityCoordinates.getCoordinates(senderCity);
+            if (senderCoordinates.isEmpty()) {
+                throw new IllegalArgumentException("Couldn't provide coordinates for the sender.");
             }
-            for (DroneHub hub : hubs) {
+
+            OptionalLong tempIndex = getGridIndexKey(senderCity);
+            long orderGridIndex = tempIndex.orElseThrow(() -> new IllegalArgumentException("Couldn't provide a grid index key."));
+
+            List<DroneHub> nearbyHubs = HubGridIndex.getNearbyHubs(orderGridIndex);
+            DroneHub bestHub = null;
+            Drone bestDrone = null;
+            double bestDistance = Double.MAX_VALUE;
+            for (DroneHub hub : nearbyHubs) {
                 String hubCity = hub.getAddress().getCity();
-                double[] hubCoordinates = CityCoordinates.getCoordinates(hubCity).orElse(null);
-                if (hubCoordinates == null) {
-                    throw new RuntimeException("Couldn't find coordinates for the hub city: " + hubCity + ".");
+                Optional<double[]> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
+                if (hubCoordinates.isEmpty()) {
+                    throw new IllegalArgumentException("Couldn't provide coordinates for the hub.");
                 }
-                double distance = GeoCalculations.calculateDistance(senderCoordinates[0], senderCoordinates[1], hubCoordinates[0], hubCoordinates[1]);
-                for (Drone drone : hub.getAvailableDrones()) {
-                    if (drone.satisfiesPackageRequirements(order.getPackage()) && drone.canReach(distance)) {
-                        distanceMapping.put(distance, hub);
-                        break;
+
+                double distanceBetweenSenderAndHub = GeoCalculations.calculateDistance(senderCoordinates.get()[0], senderCoordinates.get()[1],
+                        hubCoordinates.get()[0], hubCoordinates.get()[1]);
+
+                List<Drone> suitableDrones = hub.getDronesForPackage(order.getPackage(), distanceBetweenSenderAndHub);
+
+                if (!suitableDrones.isEmpty()) {
+                    if (bestDistance > distanceBetweenSenderAndHub) {
+                        bestHub = hub;
+                        bestDrone = suitableDrones.getFirst();
+                        bestDistance = distanceBetweenSenderAndHub;
                     }
                 }
             }
-            if (distanceMapping.isEmpty()) {
-                throw new RuntimeException("No suitable hub found for the order.");
+            if (bestHub != null && bestDrone != null) {
+                bestHub.addPackage(order.getPackage());
+                bestDrone.addWeight(order.getPackage().getWeight());
+                removeUncollectedOrder(order);
             }
-            distanceMapping.firstEntry().getValue().addPackage(order.getPackage());
-            fulfilledOrders.add(order);
-        }
-        for (Order order : fulfilledOrders) {
-            removeUncollectedOrder(order);
         }
     }
 }

@@ -4,20 +4,20 @@ import com.fasterxml.jackson.core.*;
 import java.io.File;
 import java.util.*;
 
-public class CityCoordinates {
+public final class CityCoordinates {
     private static final String JSON_FILE_PATH = "src/main/resources/cities.json";
     private static final Map<String, double[]> cache = new HashMap<>();
 
     public static Optional<double[]> getCoordinates(String city) {
-        String key = city.toLowerCase();
+        String lowercaseCity = city.toLowerCase();
 
-        if (cache.containsKey(key)) {
-            return Optional.of(cache.get(key));
+        if (cache.containsKey(lowercaseCity)) {
+            return Optional.of(cache.get(lowercaseCity));
         }
 
-        Optional<double[]> coordinates = searchInFile(key);
+        Optional<double[]> coordinates = searchInFile(lowercaseCity);
 
-        coordinates.ifPresent(c -> cache.put(city, c));
+        coordinates.ifPresent(c -> cache.put(lowercaseCity, c));
 
         return coordinates;
     }

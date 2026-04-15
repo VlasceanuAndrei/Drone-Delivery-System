@@ -11,6 +11,7 @@ public class Drone {
     private final double maximumSpeed;
     private boolean isAvailable;
     private final LocalDate lastMaintenance;
+    private double currentLoad;
 
     public Drone(String name, int flightRange, double maximumPayload,
                  double maximumSpeed, boolean isAvailable) {
@@ -25,6 +26,7 @@ public class Drone {
         this.maximumSpeed = maximumSpeed;
         this.isAvailable = isAvailable;
         this.lastMaintenance = validateLastMaintenance(lastMaintenance);
+        this.currentLoad = 0.0;
     }
 
     public String getName() {
@@ -43,10 +45,16 @@ public class Drone {
         return maximumSpeed;
     }
 
-    public LocalDate getLastMaintenance() { return lastMaintenance; }
+    public LocalDate getLastMaintenance() {
+        return lastMaintenance;
+    }
 
     public boolean getAvailability() {
         return isAvailable;
+    }
+
+    public double getCurrentLoad() {
+        return currentLoad;
     }
 
     public void setAvailability(boolean availability) {
@@ -73,7 +81,11 @@ public class Drone {
     }
 
     public boolean canCarry(Package pkg) {
-        return pkg.getWeight() <= maximumPayload;
+        return pkg.getWeight() <= maximumPayload - currentLoad;
+    }
+
+    public void addWeight(double weight) {
+        currentLoad += weight;
     }
 
     public boolean satisfiesPackageRequirements(Package pkg) {

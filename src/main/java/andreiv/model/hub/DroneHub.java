@@ -39,6 +39,7 @@ public class DroneHub {
         for (Drone drone : fleet) {
             System.out.println(count + ". " + drone.getName() + " - " + drone.getFlightRange() +
                     " km range - " + drone.getMaximumPayload() + " maximum payload");
+            count++;
         }
     }
 
@@ -84,6 +85,26 @@ public class DroneHub {
             }
         }
         return filteredPackages;
+    }
+
+    public List<Drone> getDronesForPackage(Package pkg, double distance) {
+        TreeMap<Double, List<Drone>> dronesByCapacity = new TreeMap<>();
+        List<Drone> drones = getAvailableDrones();
+        for (Drone drone : drones) {
+            if (!drone.canReach(distance)) continue;
+            if (!drone.canCarry(pkg)) continue;
+            if (!drone.satisfiesPackageRequirements(pkg)) continue;
+
+            double remainingCapacity = drone.getMaximumPayload() - drone.getCurrentLoad();
+            List<Drone> currentDrones = dronesByCapacity.getOrDefault(remainingCapacity, new ArrayList<>());
+            currentDrones.add(drone);
+            dronesByCapacity.put(remainingCapacity, currentDrones);
+        }
+        if (dronesByCapacity.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return dronesByCapacity.get(dronesByCapacity.firstKey());
     }
 
     public void checkFleetMaintenance() {

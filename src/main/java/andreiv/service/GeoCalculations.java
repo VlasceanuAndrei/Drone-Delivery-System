@@ -1,6 +1,6 @@
 package andreiv.service;
 
-public class GeoCalculations {
+public final class GeoCalculations {
     static double calculateDistance(double lat1, double long1,
                              double lat2, double long2) {
         final double EARTHS_RADIUS = 6371.0;
