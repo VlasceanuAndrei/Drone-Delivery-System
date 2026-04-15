@@ -1,10 +1,11 @@
 package andreiv.service;
 
+import java.util.*;
 import andreiv.model.drone.Drone;
 import andreiv.model.hub.DroneHub;
 import andreiv.model.order.Order;
 import static andreiv.service.HubGridIndex.*;
-import java.util.*;
+import andreiv.exception.CoordinatesNotFoundException;
 
 public class OrderDispatcher {
     private static OrderDispatcher instance;
@@ -62,7 +63,7 @@ public class OrderDispatcher {
             String senderCity = order.getSender().getAddress().getCity();
             Optional<double[]> senderCoordinates = CityCoordinates.getCoordinates(senderCity);
             if (senderCoordinates.isEmpty()) {
-                throw new IllegalArgumentException("Couldn't provide coordinates for the sender.");
+                throw new CoordinatesNotFoundException(senderCity, "SENDER");
             }
 
             OptionalLong tempIndex = getGridIndexKey(senderCity);
@@ -76,7 +77,7 @@ public class OrderDispatcher {
                 String hubCity = hub.getAddress().getCity();
                 Optional<double[]> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
                 if (hubCoordinates.isEmpty()) {
-                    throw new IllegalArgumentException("Couldn't provide coordinates for the hub.");
+                    throw new CoordinatesNotFoundException(hubCity, "HUB");
                 }
 
                 double distanceBetweenSenderAndHub = GeoCalculations.calculateDistance(senderCoordinates.get()[0], senderCoordinates.get()[1],

@@ -3,6 +3,8 @@ package andreiv.model.drone;
 import java.time.*;
 import andreiv.model.order.Package;
 import andreiv.model.PackageRequirement;
+import andreiv.exception.InvalidFlightRangeException;
+import andreiv.exception.InvalidMaintenanceDateException;
 
 public class Drone {
     private final String name;
@@ -63,7 +65,7 @@ public class Drone {
 
     private static int validateFlightRange(int flightRange) {
         if (flightRange < 0 || flightRange > 550) {
-            throw new IllegalArgumentException("Invalid range provided for flightRange.");
+            throw new InvalidFlightRangeException(flightRange);
         }
         return flightRange;
     }
@@ -71,7 +73,7 @@ public class Drone {
     private static LocalDate validateLastMaintenance(LocalDate lastMaintenance) {
         final int currentYear = LocalDate.now().getYear();
         if (currentYear - lastMaintenance.getYear() > 10 || currentYear - lastMaintenance.getYear() < 0) {
-            throw new IllegalArgumentException("Invalid date provided for lastMaintenance.");
+            throw new InvalidMaintenanceDateException(lastMaintenance);
         }
         return lastMaintenance;
     }

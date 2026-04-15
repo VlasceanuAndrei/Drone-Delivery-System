@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.HashSet;
 import andreiv.model.PackageRequirement;
 import java.util.Collections;
+import andreiv.exception.InvalidDimensionException;
 
 public class Package {
     private final UUID id;
@@ -30,7 +31,7 @@ public class Package {
 
     private double validateDimension(double dimension) {
         if (dimension <= 0) {
-            throw new IllegalArgumentException("Invalid value provided for the dimension field.");
+            throw new InvalidDimensionException(dimension);
         }
         return dimension;
     }

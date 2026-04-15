@@ -1,5 +1,9 @@
 package andreiv.model.order;
 
+import andreiv.exception.InvalidEmailAddressException;
+import andreiv.exception.InvalidPhoneNumberException;
+import andreiv.exception.InvalidVatNumberException;
+
 public class Contact {
     private final String name;
     private Address address;
@@ -23,7 +27,7 @@ public class Contact {
                 emailAddress.matches("^[\\w-]+@([\\w-]+\\.)+[\\w-]{2,5}")) {
             return emailAddress;
         }
-        throw new IllegalArgumentException("Invalid value provided for the emailAddress.");
+        throw new InvalidEmailAddressException(emailAddress);
     }
 
     private String validatePhoneNumber(String phoneNumber) {
@@ -31,7 +35,7 @@ public class Contact {
                 phoneNumber.matches("^[+][0-9]{7,15}")) {
             return phoneNumber;
         }
-        throw new IllegalArgumentException("Invalid value provided for the phoneNumber");
+        throw new InvalidPhoneNumberException(phoneNumber);
     }
 
     private String validateVatNumber(String vatNumber, boolean isCompany) {
@@ -41,7 +45,7 @@ public class Contact {
         } else if (!isCompany) {
             return "N/A";
         }
-        throw new IllegalArgumentException("Invalid value provided for the vatNumber");
+        throw new InvalidVatNumberException(vatNumber);
     }
 
     public String getName() {

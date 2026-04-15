@@ -2,6 +2,8 @@ package andreiv.model.personnel;
 
 import java.util.UUID;
 import andreiv.model.PersonnelCertification;
+import andreiv.exception.AlreadyAssignedException;
+import andreiv.exception.AlreadyFreeException;
 
 public class Personnel {
     private final UUID id;
@@ -16,6 +18,10 @@ public class Personnel {
         this.isAvailable = true;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     public String getFullName() {
         return fullName;
     }
@@ -28,14 +34,14 @@ public class Personnel {
 
     public void assignToWork() {
         if (!isAvailable) {
-            throw new IllegalStateException(fullName + " is already assigned to a task.");
+            throw new AlreadyAssignedException(id, fullName);
         }
         isAvailable = false;
     }
 
     public void releaseFromWork() {
         if (isAvailable) {
-            throw new IllegalStateException(fullName + " is not currently assigned.");
+            throw new AlreadyFreeException(id, fullName);
         }
         isAvailable = true;
     }
