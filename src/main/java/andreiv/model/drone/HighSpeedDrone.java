@@ -26,8 +26,8 @@ public class HighSpeedDrone extends Drone {
     }
 
     @Override
-    protected boolean canHandleExpressDelivery() { return true; }
+    public boolean canHandleExpressDelivery() { return true; }
 
     @Override
-    protected boolean canHandleFragilePackage() { return false; }
+    public boolean canHandleFragilePackage() { return false; }
 }

@@ -6,7 +6,7 @@ import andreiv.model.PackageRequirement;
 import andreiv.exception.InvalidFlightRangeException;
 import andreiv.exception.InvalidMaintenanceDateException;
 
-public class Drone {
+public class Drone implements DroneCapabilities{
     private final String name;
     private final int flightRange;
     private final double maximumPayload;
@@ -90,30 +90,11 @@ public class Drone {
         currentLoad += weight;
     }
 
-    public boolean satisfiesPackageRequirements(Package pkg) {
-        for (PackageRequirement r : pkg.getRequirements()) {
-            if (!requirementSatisfied(r)) {
-                return false;
-            }
-        }
-        return true;
-    }
+    public boolean canHandleRefrigeratedPackage() { return false; }
 
-    private boolean requirementSatisfied(PackageRequirement r) {
-        return switch (r) {
-            case REFRIGERATED -> canHandleRefrigeratedPackage();
-            case EXPRESS_DELIVERY -> canHandleExpressDelivery();
-            case FRAGILE -> canHandleFragilePackage();
-            case HAZARDOUS -> canHandleHazardousPackage();
-            default -> true;
-        };
-    }
+    public boolean canHandleExpressDelivery() { return false; }
 
-    protected boolean canHandleRefrigeratedPackage() { return false; }
+    public boolean canHandleFragilePackage() { return true; }
 
-    protected boolean canHandleExpressDelivery() { return false; }
-
-    protected boolean canHandleFragilePackage() { return true; }
-
-    protected boolean canHandleHazardousPackage() { return false; }
+    public boolean canHandleHazardousPackage() { return false; }
 }

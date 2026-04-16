@@ -22,11 +22,11 @@ public class CargoDrone extends Drone{
     }
 
     @Override
-    protected boolean canHandleRefrigeratedPackage() { return isRefrigerated(); }
+    public boolean canHandleRefrigeratedPackage() { return isRefrigerated(); }
 
     @Override
-    protected boolean canHandleFragilePackage() { return false; }
+    public boolean canHandleFragilePackage() { return false; }
 
     @Override
-    protected boolean canHandleHazardousPackage() { return true; }
+    public boolean canHandleHazardousPackage() { return true; }
 }
