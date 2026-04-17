@@ -90,6 +90,10 @@ public class Drone implements DroneCapabilities{
         currentLoad += weight;
     }
 
+    public void emptyLoad() {
+        currentLoad = 0.0;
+    }
+
     public boolean canHandleRefrigeratedPackage() { return false; }
 
     public boolean canHandleExpressDelivery() { return false; }

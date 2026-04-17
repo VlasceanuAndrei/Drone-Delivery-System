@@ -14,7 +14,7 @@ import andreiv.model.PersonnelCertification;
 public class DroneHub {
     private final String name;
     private final List<Drone> fleet;
-    private final List<Package> packages;
+    private final List<Order> orders;
     private final List<Personnel> crew;
     private final Address address;
     private final List<Drone> dronesUnderMaintenance;
@@ -24,11 +24,11 @@ public class DroneHub {
         this(name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), address);
     }
 
-    public DroneHub(String name, List<Drone> fleet, List<andreiv.model.order.Package> packages,
+    public DroneHub(String name, List<Drone> fleet, List<Order> orders,
                     List<Personnel> crew, Address address) {
         this.name = name;
         this.fleet = fleet;
-        this.packages = packages;
+        this.orders = orders;
         this.crew = crew;
         this.address = address;
         this.dronesUnderMaintenance = new ArrayList<>();
@@ -51,12 +51,12 @@ public class DroneHub {
         fleet.remove(drone);
     }
 
-    public void addPackage(Package pack) {
-        packages.add(pack);
+    public void addOrder(Order order) {
+        orders.add(order);
     }
 
-    public void removePackage(Package pack) {
-        packages.remove(pack);
+    public void removeOrder(Order order) {
+        orders.remove(order);
     }
 
     public void addPersonnel(Personnel member) {
@@ -77,14 +77,8 @@ public class DroneHub {
         return availableDrones;
     }
 
-    public List<Package> getPackagesByCategory(PackageRequirement requirement) {
-        List<Package> filteredPackages = new ArrayList<>();
-        for (Package pkg : packages) {
-            if (pkg.getRequirements().contains(requirement)) {
-                filteredPackages.add(pkg);
-            }
-        }
-        return filteredPackages;
+    public List<Order> getOrders() {
+        return orders;
     }
 
     public List<Drone> getDronesForPackage(Package pkg, double distance) {

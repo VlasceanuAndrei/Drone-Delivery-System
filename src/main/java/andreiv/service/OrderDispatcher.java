@@ -59,6 +59,8 @@ public class OrderDispatcher {
     }
 
     public void assignUncollectedOrdersToHubs() {
+        List<Order> collectedOrders = new ArrayList<>();
+
         for (Order order : uncollectedOrders) {
             String senderCity = order.getSender().getAddress().getCity();
             Optional<double[]> senderCoordinates = CityCoordinates.getCoordinates(senderCity);
@@ -94,9 +96,72 @@ public class OrderDispatcher {
                 }
             }
             if (bestHub != null && bestDrone != null) {
-                bestHub.addPackage(order.getPackage());
+                bestHub.addOrder(order);
                 bestDrone.addWeight(order.getPackage().getWeight());
-                removeUncollectedOrder(order);
+                collectedOrders.add(order);
+            }
+        }
+
+        for (Order order : collectedOrders) {
+            uncollectedOrders.remove(order);
+        }
+
+        emptyDrones();
+    }
+
+    private void emptyDrones() {
+        for (DroneHub hub : hubs) {
+            for (Drone drone : hub.getAvailableDrones()) {
+                drone.emptyLoad();
+            }
+        }
+    }
+
+    public void deliverOrders() {
+        for (DroneHub hub : hubs) {
+            // stores the normalized bearing angle (the treeMap's key) for each order inside the hub
+            TreeMap<Integer, List<Order>> ordersByBearingAngle = new TreeMap<>();
+
+            String hubCity = hub.getAddress().getCity();
+            Optional<double[]> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
+            if (hubCoordinates.isEmpty()) {
+                throw new CoordinatesNotFoundException(hubCity, "HUB");
+            }
+
+            for (Order order : hub.getOrders()) {
+                String receiverCity = order.getReceiver().getAddress().getCity();
+                Optional<double[]> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
+                if (receiverCoordinates.isEmpty()) {
+                    throw new CoordinatesNotFoundException(receiverCity, "RECEIVER");
+                }
+
+                double bearingAngleHubReceiver = GeoCalculations.calculateAngle(hubCoordinates.get()[0], hubCoordinates.get()[1],
+                        receiverCoordinates.get()[0], receiverCoordinates.get()[1]);
+                int normalizedBearingAngle = (int) Math.round(bearingAngleHubReceiver / 15);
+
+                ordersByBearingAngle.computeIfAbsent(normalizedBearingAngle, k -> new ArrayList<>()).add(order);
+            }
+
+            // go through each bearing angle key (will start with the (0-15) degrees pair)
+            for (Integer angle : ordersByBearingAngle.keySet()) {
+                List<Order> orders = ordersByBearingAngle.get(angle);
+                if (!orders.isEmpty()) {
+                    TreeMap<Integer, List<Order>> sortedOrdersByDistance = new TreeMap<>();
+
+                    // go through each order and compute the distance between the hub and the receiver's location, while keeping the values sorted
+                    for (Order order : orders) {
+                        String receiverCity = order.getReceiver().getAddress().getCity();
+                        Optional<double[]> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
+                        if (receiverCoordinates.isEmpty()) {
+                            throw new CoordinatesNotFoundException(receiverCity, "RECEIVER");
+                        }
+                        int distance = (int) Math.round(GeoCalculations.calculateDistance(hubCoordinates.get()[0], hubCoordinates.get()[1],
+                                receiverCoordinates.get()[0], receiverCoordinates.get()[1]));
+                        sortedOrdersByDistance.computeIfAbsent(distance, k -> new ArrayList<>()).add(order);
+                    }
+
+//                    for (Order order : sortedOrdersByDistance)
+                }
             }
         }
     }
