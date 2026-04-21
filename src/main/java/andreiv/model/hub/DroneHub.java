@@ -101,6 +101,27 @@ public class DroneHub {
         return dronesByCapacity.get(dronesByCapacity.firstKey());
     }
 
+    public List<Drone> getSuitableDronesForPath(Set<PackageRequirement> requirements, double distance, double load) {
+        List<Drone> suitableDrones = new ArrayList<>();
+        for (Drone drone : getAvailableDrones()) {
+            if (!drone.canReach(distance)) continue;
+            if (!drone.canCarry(load)) continue;
+
+            boolean allRequirementsSatisfied = true;
+            for (PackageRequirement requirement : requirements) {
+                if (!drone.requirementSatisfied(requirement)) {
+                    allRequirementsSatisfied = false;
+                    break;
+                }
+            }
+            if (allRequirementsSatisfied) {
+                suitableDrones.add(drone);
+            }
+        }
+
+        return suitableDrones;
+    }
+
     public void checkFleetMaintenance() {
         final LocalDate currentDate = LocalDate.now();
 

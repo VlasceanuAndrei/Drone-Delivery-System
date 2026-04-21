@@ -86,6 +86,10 @@ public class Drone implements DroneCapabilities{
         return pkg.getWeight() <= maximumPayload - currentLoad;
     }
 
+    public boolean canCarry(double load) {
+        return load <= maximumPayload - currentLoad;
+    }
+
     public void addWeight(double weight) {
         currentLoad += weight;
     }

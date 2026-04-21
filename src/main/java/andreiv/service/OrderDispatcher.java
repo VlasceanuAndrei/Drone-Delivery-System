@@ -1,6 +1,7 @@
 package andreiv.service;
 
 import java.util.*;
+import andreiv.model.PackageRequirement;
 import andreiv.model.drone.Drone;
 import andreiv.model.hub.DroneHub;
 import andreiv.model.order.Order;
@@ -12,11 +13,15 @@ public class OrderDispatcher {
 
     private final Set<DroneHub> hubs;
     private final Set<Order> uncollectedOrders;
+    private final Map<Order, Drone> assignedDroneToOrder;
+    private final Set<Order> deliveredOrders;
 
     private OrderDispatcher() {
         this.hubs = new HashSet<>();
         this.uncollectedOrders = new HashSet<>();
         HubGridIndex.initializeGrid(hubs);
+        this.assignedDroneToOrder = new HashMap<>();
+        this.deliveredOrders = new HashSet<>();
     }
 
     public static OrderDispatcher getInstance() {
@@ -146,21 +151,76 @@ public class OrderDispatcher {
             for (Integer angle : ordersByBearingAngle.keySet()) {
                 List<Order> orders = ordersByBearingAngle.get(angle);
                 if (!orders.isEmpty()) {
-                    TreeMap<Integer, List<Order>> sortedOrdersByDistance = new TreeMap<>();
+                    ArrayList<Order> sortedOrdersByDistance = new ArrayList<>(orders);
 
-                    // go through each order and compute the distance between the hub and the receiver's location, while keeping the values sorted
-                    for (Order order : orders) {
-                        String receiverCity = order.getReceiver().getAddress().getCity();
+                    // sort the orders by distance using a comparator (get each order's coordinates, then find the distance between)
+                    sortedOrdersByDistance.sort(Comparator.comparingDouble(o -> {
+                        String receiverCity = o.getReceiver().getAddress().getCity();
                         Optional<double[]> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
                         if (receiverCoordinates.isEmpty()) {
                             throw new CoordinatesNotFoundException(receiverCity, "RECEIVER");
                         }
-                        int distance = (int) Math.round(GeoCalculations.calculateDistance(hubCoordinates.get()[0], hubCoordinates.get()[1],
-                                receiverCoordinates.get()[0], receiverCoordinates.get()[1]));
-                        sortedOrdersByDistance.computeIfAbsent(distance, k -> new ArrayList<>()).add(order);
-                    }
+                        return GeoCalculations.calculateDistance(hubCoordinates.get()[0], hubCoordinates.get()[1],
+                                receiverCoordinates.get()[0], receiverCoordinates.get()[1]);
+                    }));
 
-//                    for (Order order : sortedOrdersByDistance)
+                    List<Order> currentBatch = new ArrayList<>();
+                    Set<PackageRequirement> packageRequirements = new HashSet<>();
+                    double[] previousCoordinates = hubCoordinates.get();
+                    double currentDistance = 0.0;
+                    double currentLoad = 0.0;
+                    for (Order order : sortedOrdersByDistance) {
+                        while (true) {
+                            String receiverCity = order.getReceiver().getAddress().getCity();
+                            Optional<double[]> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
+                            if (receiverCoordinates.isEmpty()) {
+                                throw new CoordinatesNotFoundException(receiverCity, "RECEIVER");
+                            }
+
+                            double distance = GeoCalculations.calculateDistance(previousCoordinates[0], previousCoordinates[1],
+                                    receiverCoordinates.get()[0], receiverCoordinates.get()[1]);
+
+                            Set<PackageRequirement> newPackageRequirements = new HashSet<>(packageRequirements);
+                            newPackageRequirements.addAll(order.getPackage().getRequirements());
+
+                            double newDistance = currentDistance + distance;
+                            double newLoad = currentLoad + order.getPackage().getWeight();
+
+                            List<Drone> currentSuitableDrones = hub.getSuitableDronesForPath(newPackageRequirements, newDistance, newLoad);
+
+                            if (!currentSuitableDrones.isEmpty()) {
+                                packageRequirements = newPackageRequirements;
+                                currentDistance = newDistance;
+                                currentLoad = newLoad;
+
+                                currentBatch.add(order);
+                                previousCoordinates = receiverCoordinates.get();
+                                break;
+                            }
+
+                            if (currentBatch.isEmpty()) {
+                                System.out.println("Order (ID: " + order.getPackage().getId() + ") couldn't be assigned to a drone.");
+                                break;
+                            }
+
+                            List<Drone> previousSuitableDrones = hub.getSuitableDronesForPath(packageRequirements, currentDistance, currentLoad);
+                            if (previousSuitableDrones.isEmpty()) {
+                                break;
+                            }
+
+                            for (Order order2 : currentBatch) {
+                                assignedDroneToOrder.put(order2, previousSuitableDrones.getFirst());
+                                hub.removeOrder(order2);
+                                removeUncollectedOrder(order2);
+                            }
+
+                            currentBatch.clear();
+                            packageRequirements.clear();
+                            currentDistance = 0.0;
+                            currentLoad = 0.0;
+                            previousCoordinates = hubCoordinates.get();
+                        }
+                    }
                 }
             }
         }
