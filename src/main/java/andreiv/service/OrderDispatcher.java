@@ -31,6 +31,22 @@ public class OrderDispatcher {
         return instance;
     }
 
+    public Set<DroneHub> getHubs() {
+        return hubs;
+    }
+
+    public Set<Order> getUncollectedOrders() {
+        return uncollectedOrders;
+    }
+
+    public Map<Order, Drone> getAssignedDroneToOrder() {
+        return assignedDroneToOrder;
+    }
+
+    public Set<Order> getDeliveredOrders() {
+        return deliveredOrders;
+    }
+
     public void addHub(DroneHub hub) {
         hubs.add(hub);
         HubGridIndex.addHubToGrid(hub);

@@ -17,6 +17,10 @@ public class Order {
         this.pkg = pkg;
     }
 
+    public UUID getId() {
+        return id;
+    }
+
     public Contact getSender() {
         return sender;
     }

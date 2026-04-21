@@ -51,7 +51,7 @@ public class Drone implements DroneCapabilities{
         return lastMaintenance;
     }
 
-    public boolean getAvailability() {
+    public boolean isAvailable() {
         return isAvailable;
     }
 

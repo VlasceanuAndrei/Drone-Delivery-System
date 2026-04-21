@@ -21,7 +21,19 @@ public class Address {
         return new Address(this.country, this.city, newStreet, newNumber);
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
     public String getCity() {
         return city;
+    }
+
+    public String getNumber() {
+        return number;
     }
 }

@@ -34,13 +34,24 @@ public class DroneHub {
         this.dronesUnderMaintenance = new ArrayList<>();
     }
 
-    public void displayFleet() {
-        int count = 1;
-        for (Drone drone : fleet) {
-            System.out.println(count + ". " + drone.getName() + " - " + drone.getFlightRange() +
-                    " km range - " + drone.getMaximumPayload() + " maximum payload");
-            count++;
-        }
+    public String getName() {
+        return name;
+    }
+
+    public List<Drone> getFleet() {
+        return fleet;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public List<Personnel> getCrew() {
+        return crew;
+    }
+
+    public Address getAddress() {
+        return address;
     }
 
     public void addDrone(Drone drone) {
@@ -70,15 +81,11 @@ public class DroneHub {
     public List<Drone> getAvailableDrones() {
         List<Drone> availableDrones = new ArrayList<>();
         for (Drone drone : fleet) {
-            if (drone.getAvailability()) {
+            if (drone.isAvailable()) {
                 availableDrones.add(drone);
             }
         }
         return availableDrones;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
     }
 
     public List<Drone> getDronesForPackage(Package pkg, double distance) {
@@ -160,11 +167,5 @@ public class DroneHub {
         if (!dronesUnderMaintenance.isEmpty()) {
             System.out.println("Not all drones could be repaired. There are " + dronesUnderMaintenance.size() + " drones remaining.");
         }
-    }
-
-    public String getName() { return name; }
-
-    public Address getAddress() {
-        return address;
     }
 }
