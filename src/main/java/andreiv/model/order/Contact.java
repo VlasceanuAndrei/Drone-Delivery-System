@@ -24,7 +24,7 @@ public class Contact {
 
     private String validateEmailAddress(String emailAddress) {
         if (emailAddress != null &&
-                emailAddress.matches("^[\\w-]+@([\\w-]+\\.)+[\\w-]{2,5}")) {
+                emailAddress.matches("^[\\w.-]+@([\\w-]+\\.)+[\\w-]{2,5}")) {
             return emailAddress;
         }
         throw new InvalidEmailAddressException(emailAddress);

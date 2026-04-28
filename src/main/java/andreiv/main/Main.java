@@ -9,6 +9,7 @@ import andreiv.model.drone.*;
 import andreiv.model.hub.*;
 import andreiv.model.order.*;
 import andreiv.model.order.Package;
+import andreiv.model.personnel.*;
 import andreiv.service.*;
 
 public class Main {
@@ -19,6 +20,7 @@ public class Main {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
 
     public static void main(String[] args) {
+        loadSampleData();
         while (true) {
             displayMenu();
             handleMenuInput();
@@ -37,6 +39,11 @@ public class Main {
         System.out.println("7. Create Order");
         System.out.println("8. Pick up uncollected Orders");
         System.out.println("9. Deliver Orders");
+        System.out.println("10. Add Personnel to a Hub");
+        System.out.println("11. List Hub Crew and availability");
+        System.out.println("12. List available Drones from one Hub");
+        System.out.println("13. Show uncollected Orders");
+        System.out.println("14. Show delivered Orders");
         System.out.println("0. Exit");
     }
 
@@ -44,16 +51,21 @@ public class Main {
         int input = scanner.nextInt();
         scanner.nextLine();
         switch (input) {
-            case 1 -> {createDroneHub();}
-            case 2 -> {createDroneAndAddToHub();}
-            case 3 -> {moveDroneFromOneHubToAnother();}
-            case 4 -> {displayHubFleet();}
-            case 5 -> {displayOrdersFromHub();}
-            case 6 -> {performHubMaintenance();}
-            case 7 -> {createOrder();}
-            case 8 -> {pickupUncollectedOrders();}
-            case 9 -> {deliverOrders();}
-            case 0 -> {handleExit();}
+            case 1 -> createDroneHub();
+            case 2 -> createDroneAndAddToHub();
+            case 3 -> moveDroneFromOneHubToAnother();
+            case 4 -> displayHubFleet();
+            case 5 -> displayOrdersFromHub();
+            case 6 -> performHubMaintenance();
+            case 7 -> createOrder();
+            case 8 -> pickupUncollectedOrders();
+            case 9 -> deliverOrders();
+            case 10 -> addPersonnelToHub();
+            case 11 -> displayHubCrew();
+            case 12 -> displayAvailableDronesFromHub();
+            case 13 -> displayUncollectedOrders();
+            case 14 -> displayDeliveredOrders();
+            case 0 -> handleExit();
             default -> System.out.println("Invalid input. Please try again.");
         }
     }
@@ -74,11 +86,8 @@ public class Main {
     }
 
     private static void createDroneAndAddToHub() {
-        int hubIdInput;
-        int maxCurrentHubId = hubId.get() - 1;
-        System.out.print("Enter the ID of the hub you'd like to add the drone to (1..." + maxCurrentHubId + "): ");
-        hubIdInput = scanner.nextInt();
-        scanner.nextLine();
+        int hubIdInput = promptHubId("Enter the ID of the hub you'd like to add the drone to");
+        DroneHub hubToAddDroneTo = hubList.get(hubIdInput);
 
         System.out.print("Enter the name of the new drone: ");
         String droneName = scanner.nextLine();
@@ -146,7 +155,7 @@ public class Main {
 
         droneType = droneType.toLowerCase();
 
-        String droneRefrigeratorInput = "n";
+        String droneRefrigeratorInput;
         boolean droneRefrigerator = false;
         if (droneType.equals("c")) {
             while (true) {
@@ -156,13 +165,11 @@ public class Main {
                     droneRefrigerator = true;
                     break;
                 } else if (droneRefrigeratorInput.equalsIgnoreCase("n")) {
-                    droneRefrigerator = false;
                     break;
                 } else {
                     System.out.println("Invalid value provided for the droneRefrigerator field.");
                 }
             }
-            droneRefrigeratorInput = droneRefrigeratorInput.toLowerCase();
         }
 
         Drone newDrone = switch (droneType) {
@@ -190,35 +197,14 @@ public class Main {
             default -> throw new IllegalArgumentException("Invalid drone type.");
         };
 
-        DroneHub hubToAddDroneTo = hubList.get(hubIdInput);
-        if (hubToAddDroneTo == null) {
-            throw new IllegalArgumentException("Invalid ID value provided for the hub.");
-        } else {
-            hubToAddDroneTo.addDrone(newDrone);
-            System.out.println("Drone " + newDrone.getName() + " has been successfully added to hub " + hubToAddDroneTo.getName() + " (ID: " + hubIdInput + ").");
-        }
+        hubToAddDroneTo.addDrone(newDrone);
+        System.out.println("Drone " + newDrone.getName() + " has been successfully added to hub " + hubToAddDroneTo.getName() + " (ID: " + hubIdInput + ").");
     }
 
     private static void moveDroneFromOneHubToAnother() {
-        int hubIdInput;
-        int maxCurrentHubId = hubId.get() - 1;
-        System.out.print("Enter the ID of the source hub(1..." + maxCurrentHubId + "): ");
-        hubIdInput = scanner.nextInt();
-        scanner.nextLine();
+        DroneHub sourceHub = promptHub("Enter the ID of the source hub");
 
-        DroneHub sourceHub = hubList.get(hubIdInput);
-        if (sourceHub == null) {
-            throw new IllegalArgumentException("Invalid ID value provided for the source hub.");
-        }
-
-        System.out.print("Enter the ID of the destination hub(1..." + maxCurrentHubId + "): ");
-        hubIdInput = scanner.nextInt();
-        scanner.nextLine();
-
-        DroneHub destinationHub = hubList.get(hubIdInput);
-        if (destinationHub == null) {
-            throw new IllegalArgumentException("Invalid ID value provided for the destination hub.");
-        }
+        DroneHub destinationHub = promptHub("Enter the ID of the destination hub");
 
         sourceHub.displayFleet();
 
@@ -236,16 +222,7 @@ public class Main {
     }
 
     private static void displayHubFleet() {
-        int hubIdInput;
-        int maxCurrentHubId = hubId.get() - 1;
-        System.out.print("Enter the ID of the hub you'd like to see the fleet of (1..." + maxCurrentHubId + "): ");
-        hubIdInput = scanner.nextInt();
-        scanner.nextLine();
-
-        DroneHub hubToGetFleetFrom = hubList.get(hubIdInput);
-        if (hubToGetFleetFrom == null) {
-            throw new IllegalArgumentException("Invalid ID value provided for the hub.");
-        }
+        DroneHub hubToGetFleetFrom = promptHub("Enter the ID of the hub you'd like to see the fleet of");
 
         List<Drone> fleet = hubToGetFleetFrom.getFleet();
         if (fleet.isEmpty()) {
@@ -256,16 +233,7 @@ public class Main {
     }
 
     private static void displayOrdersFromHub() {
-        int hubIdInput;
-        int maxCurrentHubId = hubId.get() - 1;
-        System.out.print("Enter the ID of the hub you'd like to see the fleet of (1..." + maxCurrentHubId + "): ");
-        hubIdInput = scanner.nextInt();
-        scanner.nextLine();
-
-        DroneHub hubToGetOrdersFrom = hubList.get(hubIdInput);
-        if (hubToGetOrdersFrom == null) {
-            throw new IllegalArgumentException("Invalid ID value provided for the hub.");
-        }
+        DroneHub hubToGetOrdersFrom = promptHub("Enter the ID of the hub you'd like to see the orders of");
 
         List<Order> orders = hubToGetOrdersFrom.getOrders();
         if (orders.isEmpty()) {
@@ -283,16 +251,7 @@ public class Main {
     }
 
     private static void performHubMaintenance() {
-        int hubIdInput;
-        int maxCurrentHubId = hubId.get() - 1;
-        System.out.print("Enter the ID of the hub you'd like to perform drone maintenance on (1..." + maxCurrentHubId + "): ");
-        hubIdInput = scanner.nextInt();
-        scanner.nextLine();
-
-        DroneHub hubToPerformMaintenance = hubList.get(hubIdInput);
-        if (hubToPerformMaintenance == null) {
-            throw new IllegalArgumentException("Invalid ID value provided for the hub.");
-        }
+        DroneHub hubToPerformMaintenance = promptHub("Enter the ID of the hub you'd like to perform drone maintenance on");
 
         hubToPerformMaintenance.checkFleetMaintenance();
         hubToPerformMaintenance.performMaintenance();
@@ -316,6 +275,106 @@ public class Main {
 
     public static void deliverOrders() {
         dispatcher.deliverOrders();
+    }
+
+    private static void addPersonnelToHub() {
+        int hubIdInput = promptHubId("Enter the ID of the hub you'd like to add personnel to");
+        DroneHub hubToAddPersonnelTo = hubList.get(hubIdInput);
+
+        String fullName;
+        System.out.print("Enter the full name of the personnel member: ");
+        fullName = scanner.nextLine();
+
+        String certification;
+        while (true) {
+            System.out.print("Choose a certification (MECHANIC / OPERATOR / COMMANDER): ");
+            certification = scanner.nextLine();
+            if (certification.equalsIgnoreCase("MECHANIC") || certification.equalsIgnoreCase("OPERATOR") ||
+                    certification.equalsIgnoreCase("COMMANDER")) {
+                break;
+            } else {
+                System.out.println("Invalid value provided for the personnel certification field. Try again.");
+            }
+        }
+
+        Personnel member = new Personnel(fullName, certification);
+        hubToAddPersonnelTo.addPersonnel(member);
+
+        System.out.println("Personnel successfully added to hub " + hubToAddPersonnelTo.getName() + " (ID: " + hubIdInput + ").");
+    }
+
+    private static void displayHubCrew() {
+        DroneHub hubToGetCrewFrom = promptHub("Enter the ID of the hub you'd like to see the crew of");
+
+        List<Personnel> crew = hubToGetCrewFrom.getCrew();
+        if (crew.isEmpty()) {
+            System.out.println("No personnel is currently registered inside the hub.");
+        } else {
+            int personnelCounter = 1;
+            for (Personnel member : crew) {
+                System.out.println(personnelCounter + "# " + member.getFullName() + " - certification: " + member.getCertification() +
+                        " - availability: " + (member.isAvailable() ? "" : " not") + " available");
+                personnelCounter++;
+            }
+        }
+    }
+
+    private static void displayAvailableDronesFromHub() {
+        DroneHub hubToGetFleetFrom = promptHub("Enter the ID of the hub you'd like to see the available drones of");
+
+        List<Drone> availableDrones = hubToGetFleetFrom.getAvailableDrones();
+        if (availableDrones.isEmpty()) {
+            System.out.println("No drones are currently available inside the hub.");
+        } else {
+            int droneCounter = 1;
+            for (Drone drone : availableDrones) {
+                switch (drone) {
+                    case CargoDrone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                            d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? " available" : "not available") +
+                            " - last maintenance: " + d.getLastMaintenance() + (d.isRefrigerated() ? "" : " not") + " refrigerated");
+
+                    case HighSpeedDrone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                            d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? " available" : "not available") +
+                            " - last maintenance: " + d.getLastMaintenance() + " - can handle express deliveries");
+
+                    case Drone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                            d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? "" : " not") +
+                            " available - last maintenance: " + d.getLastMaintenance());
+                }
+                droneCounter++;
+            }
+        }
+    }
+
+    private static void displayUncollectedOrders() {
+        Set<Order> uncollectedOrders = dispatcher.getUncollectedOrders();
+        if (uncollectedOrders.isEmpty()) {
+            System.out.println("No uncollected orders are currently registered.");
+        } else {
+            int orderCounter = 1;
+            for (Order order : uncollectedOrders) {
+                System.out.println(orderCounter + "# Order (ID: " + order.getId() + ") from " + order.getSender().getName() + " (sender address: " +
+                        order.getSender().getAddress().getCity() + ", " + order.getSender().getAddress().getCountry() + ") to " +
+                        order.getReceiver().getName() + " (destination address: " + order.getReceiver().getAddress().getCity() + ", " +
+                        order.getReceiver().getAddress().getCountry() + ")");
+                orderCounter++;
+            }
+        }
+    }
+
+    private static void displayDeliveredOrders() {
+        Set<Order> deliveredOrders = dispatcher.getDeliveredOrders();
+        if (deliveredOrders.isEmpty()) {
+            System.out.println("No delivered orders are currently registered.");
+        } else {
+            int orderCounter = 1;
+            for (Order order : deliveredOrders) {
+                String route = order.getSender().getAddress().getCity() + ", " + order.getSender().getAddress().getCountry() + " -> " +
+                        order.getReceiver().getAddress().getCity() + ", " + order.getReceiver().getAddress().getCountry();
+                System.out.println(orderCounter + "# Delivered Order (ID: " + order.getId() + ") - route: " + route);
+                orderCounter++;
+            }
+        }
     }
 
     private static Address createAddress(String useCase) {
@@ -394,7 +453,7 @@ public class Main {
         scanner.nextLine();
 
         List<String> r = new ArrayList<>();
-        String requirement = "";
+        String requirement;
         System.out.print("Enter package requirements, or 0 to stop the input: ");
         while (true) {
             requirement = scanner.nextLine();
@@ -406,6 +465,67 @@ public class Main {
         String[] requirements = r.toArray(new String[0]);
 
         return new Package(weight, width, length, height, requirements);
+    }
+
+    private static int promptHubId(final String prompt) {
+        int hubIdInput;
+        int maxCurrentHubId = hubId.get() - 1;
+        System.out.print(prompt + " (1..." + maxCurrentHubId + "): ");
+        hubIdInput = scanner.nextInt();
+        scanner.nextLine();
+
+        if (hubList.get(hubIdInput) == null) {
+            throw new IllegalArgumentException("Invalid ID value provided for the hub.");
+        }
+        return hubIdInput;
+    }
+
+    private static DroneHub promptHub(final String prompt) {
+        int hubIdInput = promptHubId(prompt);
+        return hubList.get(hubIdInput);
+    }
+
+    private static void loadSampleData() {
+        Address hub1Address = new Address("Romania", "Bucharest", "Bd. Aviatorilor", "42A");
+        DroneHub hub1 = new DroneHub("Aviatorilor Dispatch Hub", hub1Address);
+        hubList.put(1, hub1);
+        dispatcher.addHub(hub1);
+
+        Address hub2Address = new Address("France", "Saint-Tropez", "Rue du Général Allard", "9");
+        DroneHub hub2 = new DroneHub("Allard Coastal Hub", hub2Address);
+        hubList.put(2, hub2);
+        dispatcher.addHub(hub2);
+
+        hubId.set(3);
+
+        Drone d1 = new Drone("Falcon-S3", 220, 150.0, 60.0, true);
+        Drone d2 = new CargoDrone("IceMule-C1", 280, 325.0, 45.0, true, true);
+        Drone d3 = new HighSpeedDrone("Needle-H7", 350, 120.0, 120.0, true);
+        hub1.addDrone(d1);
+        hub1.addDrone(d3);
+        hub2.addDrone(d2);
+
+        Personnel p1 = new Personnel("Sorin Patrascu", "MECHANIC");
+        Personnel p2 = new Personnel("Irina Pop", "OPERATOR");
+        hub1.addPersonnel(p1);
+        hub1.addPersonnel(p2);
+
+        Contact sender1 = new Contact("Atelier Nocturn", new Address("Romania", "Bucharest", "Strada Arthur Verona", "17"),
+                "atelier.nocturn@test.com", "+40712345678", "", false);
+        Contact receiver1 = new Contact("Maison du Port", new Address("France", "Saint-Tropez", "Quai Jean Jaurès", "5"),
+                "maison.du.port@test.com", "+33612345678", "", false);
+        Package pkg1 = new Package(2.5, 10.0, 20.0, 5.0, new String[]{"FRAGILE"});
+        Order uncollected = new Order(sender1, receiver1, pkg1);
+        dispatcher.addUncollectedOrder(uncollected);
+
+        Contact sender2 = new Contact("Nord Atelier SRL", new Address("Romania", "Bucharest", "Calea Dorobanți", "214"),
+                "nord.atelier@test.com", "+40722222222", "RO12ABCD", true);
+        Contact receiver2 = new Contact("Villa Azur", new Address("France", "Saint-Tropez", "Chemin des Salins", "28"),
+                "villa.azur@test.com", "+33633333333", "", false);
+        Package pkg2 = new Package(1.0, 5.0, 12.0, 4.0, new String[]{"EXPRESS_DELIVERY"});
+        Order delivered = new Order(sender2, receiver2, pkg2);
+        dispatcher.getDeliveredOrders().add(delivered);
+        hub2.addOrder(delivered);
     }
 
     private static void handleExit() {
