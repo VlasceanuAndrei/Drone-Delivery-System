@@ -37,3 +37,8 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/src/main/resources/db.properties
+
+### Cursor (project-local) ###
+.cursor/
+.cursor/**
