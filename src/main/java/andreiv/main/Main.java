@@ -44,6 +44,8 @@ public class Main {
         System.out.println("12. List available Drones from one Hub");
         System.out.println("13. Show uncollected Orders");
         System.out.println("14. Show delivered Orders");
+        System.out.println("15. Check Hub maintenance status");
+        System.out.println("16. Show nearby Hubs for a City");
         System.out.println("0. Exit");
     }
 
@@ -65,6 +67,8 @@ public class Main {
             case 12 -> displayAvailableDronesFromHub();
             case 13 -> displayUncollectedOrders();
             case 14 -> displayDeliveredOrders();
+            case 15 -> checkHubMaintenanceStatus();
+            case 16 -> displayNearbyHubsForCity();
             case 0 -> handleExit();
             default -> System.out.println("Invalid input. Please try again.");
         }
@@ -373,6 +377,68 @@ public class Main {
                         order.getReceiver().getAddress().getCity() + ", " + order.getReceiver().getAddress().getCountry();
                 System.out.println(orderCounter + "# Delivered Order (ID: " + order.getId() + ") - route: " + route);
                 orderCounter++;
+            }
+        }
+    }
+
+    private static void checkHubMaintenanceStatus() {
+        DroneHub hubToCheckMaintenance = promptHub("Enter the ID of the hub you'd like to check the maintenance status of");
+
+        int before = hubToCheckMaintenance.getFleet().size();
+        hubToCheckMaintenance.checkFleetMaintenance();
+        int after = hubToCheckMaintenance.getFleet().size();
+
+        int movedToMaintenance = before - after;
+        if (movedToMaintenance <= 0) {
+            System.out.println("No drones require maintenance at this time.");
+        } else {
+            System.out.println(movedToMaintenance + " drones have been moved to maintenance.");
+        }
+    }
+
+    private static void displayNearbyHubsForCity() {
+        String city;
+        System.out.print("Enter the city you'd like to search hubs nearby for: ");
+        city = scanner.nextLine();
+
+        Optional<double[]> cityCoordinates = CityCoordinates.getCoordinates(city);
+        if (cityCoordinates.isEmpty()) {
+            System.out.println("Couldn't provide coordinates for " + city + ".");
+            return;
+        }
+
+        // sorting hubs by distance, could have multiple hubs at the same distance
+        TreeMap<Double, List<Integer>> hubsByDistance = new TreeMap<>();
+        for (Integer hubIdKey : hubList.keySet()) {
+            DroneHub hub = hubList.get(hubIdKey);
+            if (hub == null) continue;
+
+            String hubCity = hub.getAddress().getCity();
+            Optional<double[]> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
+            if (hubCoordinates.isEmpty()) continue;
+
+            double distance = GeoCalculations.calculateDistance(cityCoordinates.get()[0], cityCoordinates.get()[1],
+                    hubCoordinates.get()[0], hubCoordinates.get()[1]);
+            List<Integer> currentHubs = hubsByDistance.getOrDefault(distance, new ArrayList<>());
+            currentHubs.add(hubIdKey);
+            hubsByDistance.put(distance, currentHubs);
+        }
+
+        if (hubsByDistance.isEmpty()) {
+            System.out.println("No hubs have valid coordinates for distance calculation.");
+            return;
+        }
+
+        int counter = 1;
+        for (Double distance : hubsByDistance.keySet()) {
+            List<Integer> currentHubs = hubsByDistance.get(distance);
+            for (Integer hubIdKey : currentHubs) {
+                DroneHub hub = hubList.get(hubIdKey);
+                if (hub == null) continue;
+                System.out.println(counter + "# " + hub.getName() + " (ID: " + hubIdKey + ") - city: " + hub.getAddress().getCity() +
+                        ", " + hub.getAddress().getCountry() + " - distance: " +
+                        String.format(Locale.ENGLISH, "%.2f", distance) + "km");
+                counter++;
             }
         }
     }
