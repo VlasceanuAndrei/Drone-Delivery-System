@@ -4,7 +4,10 @@ import andreiv.exception.InvalidEmailAddressException;
 import andreiv.exception.InvalidPhoneNumberException;
 import andreiv.exception.InvalidVatNumberException;
 
+import java.util.UUID;
+
 public class Contact {
+    private final UUID id;
     private final String name;
     private Address address;
     private String emailAddress;
@@ -14,6 +17,12 @@ public class Contact {
 
     public Contact(String name, Address address, String emailAddress, String phoneNumber,
                    String vatNumber, boolean isCompany) {
+        this(UUID.randomUUID(), name, address, emailAddress, phoneNumber, vatNumber, isCompany);
+    }
+
+    public Contact(UUID id, String name, Address address, String emailAddress, String phoneNumber,
+                   String vatNumber, boolean isCompany) {
+        this.id = id == null ? UUID.randomUUID() : id;
         this.name = name;
         this.address = address;
         this.emailAddress = validateEmailAddress(emailAddress);
@@ -50,6 +59,10 @@ public class Contact {
 
     public String getName() {
         return name;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public Address getAddress() {

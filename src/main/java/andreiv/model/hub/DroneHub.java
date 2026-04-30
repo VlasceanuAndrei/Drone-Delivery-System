@@ -3,6 +3,7 @@ package andreiv.model.hub;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import andreiv.model.drone.*;
 import andreiv.model.order.*;
@@ -12,6 +13,7 @@ import andreiv.model.PackageRequirement;
 import andreiv.model.PersonnelCertification;
 
 public class DroneHub {
+    private final UUID id;
     private final String name;
     private final List<Drone> fleet;
     private final List<Order> orders;
@@ -21,17 +23,27 @@ public class DroneHub {
     private final static int MAINTENANCE_THRESHOLD = 18;
 
     public DroneHub(String name, Address address) {
-        this(name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), address);
+        this(UUID.randomUUID(), name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), address);
     }
 
     public DroneHub(String name, List<Drone> fleet, List<Order> orders,
                     List<Personnel> crew, Address address) {
+        this(UUID.randomUUID(), name, fleet, orders, crew, address);
+    }
+
+    public DroneHub(UUID id, String name, List<Drone> fleet, List<Order> orders,
+                    List<Personnel> crew, Address address) {
+        this.id = id == null ? UUID.randomUUID() : id;
         this.name = name;
         this.fleet = fleet;
         this.orders = orders;
         this.crew = crew;
         this.address = address;
         this.dronesUnderMaintenance = new ArrayList<>();
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {

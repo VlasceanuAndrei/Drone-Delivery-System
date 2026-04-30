@@ -1,12 +1,14 @@
 package andreiv.model.drone;
 
 import java.time.*;
+import java.util.UUID;
 import andreiv.model.order.Package;
 import andreiv.model.PackageRequirement;
 import andreiv.exception.InvalidFlightRangeException;
 import andreiv.exception.InvalidMaintenanceDateException;
 
 public class Drone implements DroneCapabilities{
+    private final UUID id;
     private final String name;
     private final int flightRange;
     private final double maximumPayload;
@@ -17,11 +19,17 @@ public class Drone implements DroneCapabilities{
 
     public Drone(String name, int flightRange, double maximumPayload,
                  double maximumSpeed, boolean isAvailable) {
-        this(name, flightRange, maximumPayload, maximumSpeed, isAvailable, LocalDate.now());
+        this(UUID.randomUUID(), name, flightRange, maximumPayload, maximumSpeed, isAvailable, LocalDate.now());
     }
 
     public Drone(String name, int flightRange, double maximumPayload, double maximumSpeed,
                  boolean isAvailable, LocalDate lastMaintenance) {
+        this(UUID.randomUUID(), name, flightRange, maximumPayload, maximumSpeed, isAvailable, lastMaintenance);
+    }
+
+    public Drone(UUID id, String name, int flightRange, double maximumPayload, double maximumSpeed,
+                 boolean isAvailable, LocalDate lastMaintenance) {
+        this.id = id == null ? UUID.randomUUID() : id;
         this.name = name;
         this.flightRange = validateFlightRange(flightRange);
         this.maximumPayload = maximumPayload;
@@ -29,6 +37,10 @@ public class Drone implements DroneCapabilities{
         this.isAvailable = isAvailable;
         this.lastMaintenance = validateLastMaintenance(lastMaintenance);
         this.currentLoad = 0.0;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     public String getName() {
