@@ -12,10 +12,18 @@ public class Personnel {
     private boolean isAvailable;
 
     public Personnel(String fullName, String certification) {
-        this.id = UUID.randomUUID();
+        this(UUID.randomUUID(), fullName, certification, true);
+    }
+
+    public Personnel(UUID id, String fullName, String certification) {
+        this(id, fullName, certification, true);
+    }
+
+    public Personnel(UUID id, String fullName, String certification, boolean isAvailable) {
+        this.id = id == null ? UUID.randomUUID() : id;
         this.fullName = fullName;
         this.certification = PersonnelCertification.validateCertification(certification);
-        this.isAvailable = true;
+        this.isAvailable = isAvailable;
     }
 
     public UUID getId() {

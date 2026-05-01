@@ -11,7 +11,11 @@ public class Order {
     private final Package pkg;
 
     public Order(Contact sender, Contact receiver, Package pkg) {
-        this.id = UUID.randomUUID();
+        this(UUID.randomUUID(), sender, receiver, pkg);
+    }
+
+    public Order(UUID id, Contact sender, Contact receiver, Package pkg) {
+        this.id = id == null ? UUID.randomUUID() : id;
         this.sender = sender;
         this.receiver = receiver;
         this.pkg = pkg;

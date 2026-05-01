@@ -54,8 +54,16 @@ public class Package {
         return weight;
     }
 
-    public double getVolume() {
-        return width * length * height;
+    public double getWidth() {
+        return width;
+    }
+
+    public double getLength() {
+        return length;
+    }
+
+    public double getHeight() {
+        return height;
     }
 
     public Set<PackageRequirement> getRequirements() {
