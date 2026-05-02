@@ -12,6 +12,7 @@ import andreiv.model.order.*;
 import andreiv.model.order.Package;
 import andreiv.model.personnel.*;
 import andreiv.service.*;
+import andreiv.audit.AuditService;
 
 public class Main {
     private static final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
@@ -54,23 +55,74 @@ public class Main {
         int input = scanner.nextInt();
         scanner.nextLine();
         switch (input) {
-            case 1 -> createDroneHub();
-            case 2 -> createDroneAndAddToHub();
-            case 3 -> moveDroneFromOneHubToAnother();
-            case 4 -> displayHubFleet();
-            case 5 -> displayOrdersFromHub();
-            case 6 -> performHubMaintenance();
-            case 7 -> createOrder();
-            case 8 -> pickupUncollectedOrders();
-            case 9 -> deliverOrders();
-            case 10 -> addPersonnelToHub();
-            case 11 -> displayHubCrew();
-            case 12 -> displayAvailableDronesFromHub();
-            case 13 -> displayUncollectedOrders();
-            case 14 -> displayDeliveredOrders();
-            case 15 -> checkHubMaintenanceStatus();
-            case 16 -> displayNearbyHubsForCity();
-            case 0 -> handleExit();
+            case 1 -> {
+                AuditService.audit("create_drone_hub");
+                createDroneHub();
+            }
+            case 2 -> {
+                AuditService.audit("create_drone_and_add_to_hub");
+                createDroneAndAddToHub();
+            }
+            case 3 -> {
+                AuditService.audit("moveDroneFromOneHubToAnother");
+                moveDroneFromOneHubToAnother();
+            }
+            case 4 -> {
+                AuditService.audit("display_hub_fleet");
+                displayHubFleet();
+            }
+            case 5 -> {
+                AuditService.audit("display_orders_from_hub");
+                displayOrdersFromHub();
+            }
+            case 6 -> {
+                AuditService.audit("perform_hub_maintenance");
+                performHubMaintenance();
+            }
+            case 7 -> {
+                AuditService.audit("create_order");
+                createOrder();
+            }
+            case 8 -> {
+                AuditService.audit("pickup_uncollected_orders");
+                pickupUncollectedOrders();
+            }
+            case 9 -> {
+                AuditService.audit("deliver_orders");
+                deliverOrders();
+            }
+            case 10 -> {
+                AuditService.audit("add_personnel_to_hub");
+                addPersonnelToHub();
+            }
+            case 11 -> {
+                AuditService.audit("display_hub_crew");
+                displayHubCrew();
+            }
+            case 12 -> {
+                AuditService.audit("display_available_drones_from_hub");
+                displayAvailableDronesFromHub();
+            }
+            case 13 -> {
+                AuditService.audit("display_uncollected_orders");
+                displayUncollectedOrders();
+            }
+            case 14 -> {
+                AuditService.audit("display_delivered_orders");
+                displayDeliveredOrders();
+            }
+            case 15 -> {
+                AuditService.audit("check_hub_maintenance_status");
+                checkHubMaintenanceStatus();
+            }
+            case 16 -> {
+                AuditService.audit("display_nearby_hubs_for_city");
+                displayNearbyHubsForCity();
+            }
+            case 0 -> {
+                AuditService.audit("exit_app");
+                handleExit();
+            }
             default -> System.out.println("Invalid input. Please try again.");
         }
     }
