@@ -27,6 +27,11 @@ public class Drone implements DroneCapabilities{
         this(UUID.randomUUID(), name, flightRange, maximumPayload, maximumSpeed, isAvailable, lastMaintenance);
     }
 
+    public Drone(UUID id, String name, int flightRange, double maximumPayload,
+                 double maximumSpeed, boolean isAvailable) {
+        this(id, name, flightRange, maximumPayload, maximumSpeed, isAvailable, LocalDate.now());
+    }
+
     public Drone(UUID id, String name, int flightRange, double maximumPayload, double maximumSpeed,
                  boolean isAvailable, LocalDate lastMaintenance) {
         this.id = id == null ? UUID.randomUUID() : id;

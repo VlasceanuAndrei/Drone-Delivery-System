@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import andreiv.model.DroneType;
 import andreiv.model.drone.*;
 import andreiv.model.hub.*;
 import andreiv.model.order.*;
@@ -138,11 +139,11 @@ public class Main {
         droneMaintenanceOption = droneMaintenanceOption.toLowerCase();
 
         String droneMaintenanceInput;
-        LocalDate droneLastMaintenanceDate = LocalDate.now();
+        Optional<LocalDate> droneLastMaintenanceDate = Optional.empty();
         if (droneMaintenanceOption.equals("y")) {
             System.out.print("Enter drone's last maintenance date (dd-MMM-yyyy): ");
             droneMaintenanceInput = scanner.nextLine();
-            droneLastMaintenanceDate = LocalDate.parse(droneMaintenanceInput, DATE_FORMATTER);
+            droneLastMaintenanceDate = Optional.of(LocalDate.parse(droneMaintenanceInput, DATE_FORMATTER));
         }
 
         String droneType;
@@ -176,30 +177,10 @@ public class Main {
             }
         }
 
-        Drone newDrone = switch (droneType) {
-            case "n" -> {
-                if (droneMaintenanceOption.equals("y")) {
-                    yield new Drone(droneName, droneFlightRange, droneMaximumPayload, droneMaximumSpeed, droneAvailability, droneLastMaintenanceDate);
-                }
-                yield new Drone(droneName, droneFlightRange, droneMaximumPayload, droneMaximumSpeed, droneAvailability);
-            }
+        DroneType type = mapDroneType(droneType);
 
-            case "c" -> {
-                if (droneMaintenanceOption.equals("y")) {
-                    yield new CargoDrone(droneName, droneFlightRange, droneMaximumPayload, droneMaximumSpeed, droneAvailability, droneLastMaintenanceDate, droneRefrigerator);
-                }
-                yield new CargoDrone(droneName, droneFlightRange, droneMaximumPayload, droneMaximumSpeed, droneAvailability, droneRefrigerator);
-            }
-
-            case "h" -> {
-                if (droneMaintenanceOption.equals("y")) {
-                    yield new HighSpeedDrone(droneName, droneFlightRange, droneMaximumPayload, droneMaximumSpeed, droneAvailability, droneLastMaintenanceDate);
-                }
-                yield new HighSpeedDrone(droneName, droneFlightRange, droneMaximumPayload, droneMaximumSpeed, droneAvailability);
-            }
-
-            default -> throw new IllegalArgumentException("Invalid drone type.");
-        };
+        Drone newDrone = DroneFactory.createDrone(type, droneName, droneFlightRange, droneMaximumPayload,
+                droneMaximumSpeed, droneAvailability, droneLastMaintenanceDate, droneRefrigerator);
 
         hubToAddDroneTo.addDrone(newDrone);
         System.out.println("Drone " + newDrone.getName() + " has been successfully added to hub " + hubToAddDroneTo.getName() + " (ID: " + hubIdInput + ").");
@@ -218,7 +199,7 @@ public class Main {
         droneId = scanner.nextInt();
         scanner.nextLine();
 
-        Drone droneToMove = fleet.get(droneId);
+        Drone droneToMove = fleet.get(droneId - 1);
         sourceHub.removeDrone(droneToMove);
         destinationHub.addDrone(droneToMove);
 
@@ -441,6 +422,15 @@ public class Main {
                 counter++;
             }
         }
+    }
+
+    public static DroneType mapDroneType(String droneType) {
+        droneType = droneType.toLowerCase();
+        return switch (droneType) {
+            case "c" -> DroneType.CARGO;
+            case "h" -> DroneType.HIGH_SPEED;
+            default -> DroneType.NORMAL;
+        };
     }
 
     private static Address createAddress(String useCase) {

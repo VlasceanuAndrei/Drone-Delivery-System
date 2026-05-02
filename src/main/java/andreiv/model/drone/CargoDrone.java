@@ -7,8 +7,8 @@ public class CargoDrone extends Drone{
     private final boolean hasRefrigerator;
 
     public CargoDrone(String name, int flightRange, double maximumPayload,
-                      double maximumSpeed, boolean isAvailable, LocalDate dateOfPurchase, boolean hasRefrigerator) {
-        super(name, flightRange, maximumPayload, maximumSpeed, isAvailable, dateOfPurchase);
+                      double maximumSpeed, boolean isAvailable, LocalDate lastMaintenance, boolean hasRefrigerator) {
+        super(name, flightRange, maximumPayload, maximumSpeed, isAvailable, lastMaintenance);
         this.hasRefrigerator = hasRefrigerator;
     }
 
@@ -19,8 +19,8 @@ public class CargoDrone extends Drone{
     }
 
     public CargoDrone(UUID id, String name, int flightRange, double maximumPayload,
-                      double maximumSpeed, boolean isAvailable, LocalDate dateOfPurchase, boolean hasRefrigerator) {
-        super(id, name, flightRange, maximumPayload, maximumSpeed, isAvailable, dateOfPurchase);
+                      double maximumSpeed, boolean isAvailable, LocalDate lastMaintenance, boolean hasRefrigerator) {
+        super(id, name, flightRange, maximumPayload, maximumSpeed, isAvailable, lastMaintenance);
         this.hasRefrigerator = hasRefrigerator;
     }
 

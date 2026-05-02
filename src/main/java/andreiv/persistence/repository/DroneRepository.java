@@ -1,5 +1,6 @@
 package andreiv.persistence.repository;
 
+import andreiv.model.DroneType;
 import andreiv.model.drone.*;
 import andreiv.persistence.DbConnectionManager;
 
@@ -177,16 +178,16 @@ public final class DroneRepository implements BaseRepository<Drone> {
         boolean isAvailable = rs.getBoolean("is_available");
         LocalDate lastMaintenance = rs.getDate("last_maintenance").toLocalDate();
 
+        boolean hasRefrigerator = rs.getObject("has_refrigerator") != null && rs.getBoolean("has_refrigerator");
+        DroneType droneType = DroneType.NORMAL;
         if ("CARGO".equals(type)) {
-            boolean hasRefrigerator = rs.getObject("has_refrigerator") != null && rs.getBoolean("has_refrigerator");
-            return new CargoDrone(id, name, flightRange, maxPayload, maxSpeed, isAvailable, lastMaintenance, hasRefrigerator);
+            droneType = DroneType.CARGO;
+        } else if ("HIGH_SPEED".equals(type)) {
+            droneType = DroneType.HIGH_SPEED;
         }
 
-        if ("HIGH_SPEED".equals(type)) {
-            return new HighSpeedDrone(id, name, flightRange, maxPayload, maxSpeed, isAvailable, lastMaintenance);
-        }
-
-        return new Drone(id, name, flightRange, maxPayload, maxSpeed, isAvailable, lastMaintenance);
+        return DroneFactory.createDroneWithId(id, droneType, name, flightRange, maxPayload, maxSpeed,
+                isAvailable, Optional.of(lastMaintenance), hasRefrigerator);
     }
 
     private String typeOf(Drone d) {
