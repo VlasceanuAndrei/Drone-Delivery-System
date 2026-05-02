@@ -66,11 +66,11 @@ public class OrderDispatcher {
     }
 
     private OptionalLong getGridIndexKey(String city) {
-        Optional<double[]> coordinates = CityCoordinates.getCoordinates(city);
+        Optional<List<Double>> coordinates = CityCoordinates.getCoordinates(city);
 
         if (coordinates.isPresent()) {
-            int gx = (int) Math.floor(coordinates.get()[0] / CELL_SIZE);
-            int gy = (int) Math.floor(coordinates.get()[1] / CELL_SIZE);
+            int gx = (int) Math.floor(coordinates.get().getFirst() / CELL_SIZE);
+            int gy = (int) Math.floor(coordinates.get().getLast() / CELL_SIZE);
 
             long gridIndex = (((long)gx) << 32) | (gy & 0xFFFFFFFFL);
 
@@ -84,7 +84,7 @@ public class OrderDispatcher {
 
         for (Order order : uncollectedOrders) {
             String senderCity = order.getSender().getAddress().getCity();
-            Optional<double[]> senderCoordinates = CityCoordinates.getCoordinates(senderCity);
+            Optional<List<Double>> senderCoordinates = CityCoordinates.getCoordinates(senderCity);
             if (senderCoordinates.isEmpty()) {
                 throw new CoordinatesNotFoundException(senderCity, "SENDER");
             }
@@ -98,13 +98,13 @@ public class OrderDispatcher {
             double bestDistance = Double.MAX_VALUE;
             for (DroneHub hub : nearbyHubs) {
                 String hubCity = hub.getAddress().getCity();
-                Optional<double[]> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
+                Optional<List<Double>> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
                 if (hubCoordinates.isEmpty()) {
                     throw new CoordinatesNotFoundException(hubCity, "HUB");
                 }
 
-                double distanceBetweenSenderAndHub = GeoCalculations.calculateDistance(senderCoordinates.get()[0], senderCoordinates.get()[1],
-                        hubCoordinates.get()[0], hubCoordinates.get()[1]);
+                double distanceBetweenSenderAndHub = GeoCalculations.calculateDistance(senderCoordinates.get().getFirst(), senderCoordinates.get().getLast(),
+                        hubCoordinates.get().getFirst(), hubCoordinates.get().getLast());
 
                 List<Drone> suitableDrones = hub.getDronesForPackage(order.getPackage(), distanceBetweenSenderAndHub);
 
@@ -144,20 +144,20 @@ public class OrderDispatcher {
             TreeMap<Integer, List<Order>> ordersByBearingAngle = new TreeMap<>();
 
             String hubCity = hub.getAddress().getCity();
-            Optional<double[]> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
+            Optional<List<Double>> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
             if (hubCoordinates.isEmpty()) {
                 throw new CoordinatesNotFoundException(hubCity, "HUB");
             }
 
             for (Order order : hub.getOrders()) {
                 String receiverCity = order.getReceiver().getAddress().getCity();
-                Optional<double[]> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
+                Optional<List<Double>> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
                 if (receiverCoordinates.isEmpty()) {
                     throw new CoordinatesNotFoundException(receiverCity, "RECEIVER");
                 }
 
-                double bearingAngleHubReceiver = GeoCalculations.calculateAngle(hubCoordinates.get()[0], hubCoordinates.get()[1],
-                        receiverCoordinates.get()[0], receiverCoordinates.get()[1]);
+                double bearingAngleHubReceiver = GeoCalculations.calculateAngle(hubCoordinates.get().getFirst(), hubCoordinates.get().getLast(),
+                        receiverCoordinates.get().getFirst(), receiverCoordinates.get().getLast());
                 int normalizedBearingAngle = (int) Math.round(bearingAngleHubReceiver / 15);
 
                 ordersByBearingAngle.computeIfAbsent(normalizedBearingAngle, k -> new ArrayList<>()).add(order);
@@ -172,29 +172,29 @@ public class OrderDispatcher {
                     // sort the orders by distance using a comparator (get each order's coordinates, then find the distance between)
                     sortedOrdersByDistance.sort(Comparator.comparingDouble(o -> {
                         String receiverCity = o.getReceiver().getAddress().getCity();
-                        Optional<double[]> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
+                        Optional<List<Double>> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
                         if (receiverCoordinates.isEmpty()) {
                             throw new CoordinatesNotFoundException(receiverCity, "RECEIVER");
                         }
-                        return GeoCalculations.calculateDistance(hubCoordinates.get()[0], hubCoordinates.get()[1],
-                                receiverCoordinates.get()[0], receiverCoordinates.get()[1]);
+                        return GeoCalculations.calculateDistance(hubCoordinates.get().getFirst(), hubCoordinates.get().getLast(),
+                                receiverCoordinates.get().getFirst(), receiverCoordinates.get().getLast());
                     }));
 
                     List<Order> currentBatch = new ArrayList<>();
                     Set<PackageRequirement> packageRequirements = new HashSet<>();
-                    double[] previousCoordinates = hubCoordinates.get();
+                    List<Double> previousCoordinates = hubCoordinates.get();
                     double currentDistance = 0.0;
                     double currentLoad = 0.0;
                     for (Order order : sortedOrdersByDistance) {
                         while (true) {
                             String receiverCity = order.getReceiver().getAddress().getCity();
-                            Optional<double[]> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
+                            Optional<List<Double>> receiverCoordinates = CityCoordinates.getCoordinates(receiverCity);
                             if (receiverCoordinates.isEmpty()) {
                                 throw new CoordinatesNotFoundException(receiverCity, "RECEIVER");
                             }
 
-                            double distance = GeoCalculations.calculateDistance(previousCoordinates[0], previousCoordinates[1],
-                                    receiverCoordinates.get()[0], receiverCoordinates.get()[1]);
+                            double distance = GeoCalculations.calculateDistance(previousCoordinates.getFirst(), previousCoordinates.getLast(),
+                                    receiverCoordinates.get().getFirst(), receiverCoordinates.get().getLast());
 
                             Set<PackageRequirement> newPackageRequirements = new HashSet<>(packageRequirements);
                             newPackageRequirements.addAll(order.getPackage().getRequirements());

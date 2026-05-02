@@ -5,6 +5,7 @@ import andreiv.persistence.DbConnectionManager;
 
 import java.util.*;
 import java.sql.*;
+import java.sql.Date;
 import java.time.*;
 
 public final class DroneRepository implements BaseRepository<Drone> {

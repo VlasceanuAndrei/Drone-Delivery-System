@@ -17,11 +17,11 @@ public final class HubGridIndex {
 
     static void addHubToGrid(DroneHub hub) {
         String hubCity = hub.getAddress().getCity();
-        Optional<double[]> coordinates = CityCoordinates.getCoordinates(hubCity);
+        Optional<List<Double>> coordinates = CityCoordinates.getCoordinates(hubCity);
 
         if (coordinates.isPresent()) {
-            int gxCoord = (int) Math.floor(coordinates.get()[0] / CELL_SIZE);
-            int gyCoord = (int) Math.floor(coordinates.get()[1] / CELL_SIZE);
+            int gxCoord = (int) Math.floor(coordinates.get().getFirst() / CELL_SIZE);
+            int gyCoord = (int) Math.floor(coordinates.get().getLast() / CELL_SIZE);
 
             long gridIndex = (((long)gxCoord) << 32) | (gyCoord & 0xFFFFFFFFL);
 
@@ -31,11 +31,11 @@ public final class HubGridIndex {
 
     static void removeHubFromGrid(DroneHub hub) {
         String hubCity = hub.getAddress().getCity();
-        Optional<double[]> coordinates = CityCoordinates.getCoordinates(hubCity);
+        Optional<List<Double>> coordinates = CityCoordinates.getCoordinates(hubCity);
 
         if (coordinates.isPresent()) {
-            int gxCoord = (int) Math.floor(coordinates.get()[0] / CELL_SIZE);
-            int gyCoord = (int) Math.floor(coordinates.get()[1] / CELL_SIZE);
+            int gxCoord = (int) Math.floor(coordinates.get().getFirst() / CELL_SIZE);
+            int gyCoord = (int) Math.floor(coordinates.get().getLast() / CELL_SIZE);
 
             long gridIndex = (((long)gxCoord) << 32) | (gyCoord & 0xFFFFFFFFL);
 

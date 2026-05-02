@@ -401,7 +401,7 @@ public class Main {
         System.out.print("Enter the city you'd like to search hubs nearby for: ");
         city = scanner.nextLine();
 
-        Optional<double[]> cityCoordinates = CityCoordinates.getCoordinates(city);
+        Optional<List<Double>> cityCoordinates = CityCoordinates.getCoordinates(city);
         if (cityCoordinates.isEmpty()) {
             System.out.println("Couldn't provide coordinates for " + city + ".");
             return;
@@ -414,11 +414,11 @@ public class Main {
             if (hub == null) continue;
 
             String hubCity = hub.getAddress().getCity();
-            Optional<double[]> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
+            Optional<List<Double>> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
             if (hubCoordinates.isEmpty()) continue;
 
-            double distance = GeoCalculations.calculateDistance(cityCoordinates.get()[0], cityCoordinates.get()[1],
-                    hubCoordinates.get()[0], hubCoordinates.get()[1]);
+            double distance = GeoCalculations.calculateDistance(cityCoordinates.get().getFirst(), cityCoordinates.get().getLast(),
+                    hubCoordinates.get().getFirst(), hubCoordinates.get().getLast());
             List<Integer> currentHubs = hubsByDistance.getOrDefault(distance, new ArrayList<>());
             currentHubs.add(hubIdKey);
             hubsByDistance.put(distance, currentHubs);

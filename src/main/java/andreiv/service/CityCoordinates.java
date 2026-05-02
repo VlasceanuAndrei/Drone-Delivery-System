@@ -6,23 +6,23 @@ import java.util.*;
 
 public final class CityCoordinates {
     private static final String JSON_FILE_PATH = "src/main/resources/cities.json";
-    private static final Map<String, double[]> cache = new HashMap<>();
+    private static final Map<String, List<Double>> cache = new HashMap<>();
 
-    public static Optional<double[]> getCoordinates(String city) {
+    public static Optional<List<Double>> getCoordinates(String city) {
         String lowercaseCity = city.toLowerCase();
 
         if (cache.containsKey(lowercaseCity)) {
             return Optional.of(cache.get(lowercaseCity));
         }
 
-        Optional<double[]> coordinates = searchInFile(lowercaseCity);
+        Optional<List<Double>> coordinates = searchInFile(lowercaseCity);
 
         coordinates.ifPresent(c -> cache.put(lowercaseCity, c));
 
         return coordinates;
     }
 
-    private static Optional<double[]> searchInFile(String city) {
+    private static Optional<List<Double>> searchInFile(String city) {
         try (JsonParser parser = new JsonFactory()
                 .createParser(new File(JSON_FILE_PATH))) {
             String currentCity = null;
@@ -41,7 +41,8 @@ public final class CityCoordinates {
 
                     if (currentCity != null && latitude != 0 && longitude != 0) {
                         if (currentCity.equals(city)) {
-                            return Optional.of(new double[]{latitude, longitude});
+                            List<Double> coordinates = Arrays.asList(latitude, longitude);
+                            return Optional.of(coordinates);
                         }
                         currentCity = null;
                         latitude = longitude = 0;
