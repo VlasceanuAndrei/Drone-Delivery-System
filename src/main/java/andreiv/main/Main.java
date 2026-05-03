@@ -64,7 +64,7 @@ public class Main {
                 createDroneAndAddToHub();
             }
             case 3 -> {
-                AuditService.audit("moveDroneFromOneHubToAnother");
+                AuditService.audit("move_drone_from_one_hub_to_another");
                 moveDroneFromOneHubToAnother();
             }
             case 4 -> {
@@ -131,7 +131,7 @@ public class Main {
         System.out.print("Enter the name of the new hub: ");
         String hubName = scanner.nextLine();
 
-        Address newHubAddress = createAddress("hub");
+        Address newHubAddress = createAddressForHub();
 
         DroneHub newHub = new DroneHub(hubName, newHubAddress);
         int newHubId = hubId.getAndIncrement();
@@ -297,10 +297,11 @@ public class Main {
     }
 
     private static void createOrder() {
-        Contact senderContact = createContact("sender");
-        Contact receiverContact = createContact("receiver");
-        Package newPackage = createPackage();
-        Order newOrder = new Order(senderContact, receiverContact, newPackage);
+        OrderBuilder orderBuilder = new OrderBuilder();
+        createContact(orderBuilder, "sender");
+        createContact(orderBuilder, "receiver");
+        createPackage(orderBuilder);
+        Order newOrder = orderBuilder.build();
         System.out.println("Order successfully created.");
 
         dispatcher.addUncollectedOrder(newOrder);
@@ -485,26 +486,51 @@ public class Main {
         };
     }
 
-    private static Address createAddress(String useCase) {
+    private static List<String> addressDataIO(String useCase) {
+        List<String> addressData = new ArrayList<>();
         System.out.println("Enter the " + useCase + "'s address:");
         System.out.print("Country: ");
-        String country = scanner.nextLine();
+        addressData.add(scanner.nextLine());
         System.out.print("City: ");
-        String city = scanner.nextLine();
+        addressData.add(scanner.nextLine());
         System.out.print("Street: ");
-        String street = scanner.nextLine();
+        addressData.add(scanner.nextLine());
         System.out.print("Street Number: ");
-        String streetNumber = scanner.nextLine();
+        addressData.add(scanner.nextLine());
+
+        return addressData;
+    }
+
+    private static Address createAddressForHub() {
+        List<String> addressData = addressDataIO("hub");
+        String country = addressData.removeFirst();
+        String city = addressData.removeFirst();
+        String street = addressData.removeFirst();
+        String streetNumber = addressData.removeFirst();
 
         return new Address(country, city, street, streetNumber);
     }
 
-    private static Contact createContact(String useCase) {
+    private static void createAddressForOrder(OrderBuilder orderBuilder, String useCase) {
+        List<String> addressData = addressDataIO(useCase);
+        String country = addressData.removeFirst();
+        String city = addressData.removeFirst();
+        String street = addressData.removeFirst();
+        String streetNumber = addressData.removeFirst();
+
+        if ("sender".equalsIgnoreCase(useCase)) {
+            orderBuilder.createSenderAddress(country, city, street, streetNumber);
+        } else if ("receiver".equalsIgnoreCase(useCase)) {
+            orderBuilder.createReceiverAddress(country, city, street, streetNumber);
+        }
+    }
+
+    private static void createContact(OrderBuilder orderBuilder, String useCase) {
         String name;
         System.out.print("Enter the full " + useCase + "'s name: ");
         name = scanner.nextLine();
 
-        Address newAddress = createAddress(useCase);
+        createAddressForOrder(orderBuilder, useCase);
 
         String email;
         System.out.print("Enter " + useCase + "'s email address: ");
@@ -536,10 +562,14 @@ public class Main {
             vatNumber = scanner.nextLine();
         }
 
-        return new Contact(name, newAddress, email, phoneNumber, vatNumber, isCompany);
+        if ("sender".equalsIgnoreCase(useCase)) {
+            orderBuilder.createSenderContact(name, email, phoneNumber, vatNumber, isCompany);
+        } else if ("receiver".equalsIgnoreCase(useCase)) {
+            orderBuilder.createReceiverContact(name, email, phoneNumber, vatNumber, isCompany);
+        }
     }
 
-    private static Package createPackage() {
+    private static void createPackage(OrderBuilder orderBuilder) {
         double weight;
         System.out.print("Enter the package weight: ");
         weight = scanner.nextDouble();
@@ -572,7 +602,7 @@ public class Main {
         }
         String[] requirements = r.toArray(new String[0]);
 
-        return new Package(weight, width, length, height, requirements);
+        orderBuilder.createPackage(weight, width, length, height, requirements);
     }
 
     private static int promptHubId(final String prompt) {

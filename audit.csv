@@ -11,3 +11,12 @@ display_delivered_orders, 2026-05-02T18:45:39.958901Z
 deliver_orders, 2026-05-02T18:45:49.824242Z
 display_nearby_hubs_for_city, 2026-05-02T18:46:01.662648Z
 exit_app, 2026-05-02T18:46:09.519599Z
+display_hub_fleet, 2026-05-03T13:27:36.592Z
+display_hub_fleet, 2026-05-03T13:27:39.318944Z
+create_drone_hub, 2026-05-03T13:27:47.583564Z
+display_hub_fleet, 2026-05-03T13:28:24.015890Z
+exit_app, 2026-05-03T13:28:54.105422Z
+move_drone_from_one_hub_to_another, 2026-05-03T13:33:06.465475Z
+display_hub_fleet, 2026-05-03T13:33:28.545503Z
+display_hub_fleet, 2026-05-03T13:33:32.567254Z
+exit_app, 2026-05-03T13:33:35.668528Z
