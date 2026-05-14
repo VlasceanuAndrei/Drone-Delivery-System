@@ -333,14 +333,17 @@ public class Main {
         orderRepository.save(newOrder);
 
         dispatcher.addUncollectedOrder(newOrder);
+        OrderStatusPersistence.syncOrderStatus();
     }
 
     public static void pickupUncollectedOrders() {
         dispatcher.assignUncollectedOrdersToHubs();
+        OrderStatusPersistence.syncOrderStatus();
     }
 
     public static void deliverOrders() {
         dispatcher.deliverOrders();
+        OrderStatusPersistence.syncOrderStatus();
     }
 
     private static void addPersonnelToHub() {
@@ -657,6 +660,9 @@ public class Main {
     private static void loadSampleData() {
         List<DroneHub> hubs = droneHubRepository.findAll();
         for (DroneHub hub : hubs) {
+            for (Drone drone : droneRepository.findByHubId(hub.getId())) {
+                hub.addDrone(drone);
+            }
             int id = hubId.getAndIncrement();
             hubList.put(id, hub);
             dispatcher.addHub(hub);
@@ -732,9 +738,6 @@ public class Main {
 
         Order order2 = new Order(sender2, receiver2, pkg2);
         orderRepository.save(order2);
-
-//        dispatcher.getDeliveredOrders().add(delivered);
-//        hub2.addOrder(delivered);
     }
     private static void handleExit() {
         System.out.println("Exiting the application...");

@@ -179,6 +179,7 @@ public final class DroneRepository implements BaseRepository<Drone> {
         PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setObject(1, id);
             ps.setObject(2, entity.getId());
+
             ps.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException("Failed to update hub's id: " + e.getMessage(), e);
@@ -218,6 +219,40 @@ public final class DroneRepository implements BaseRepository<Drone> {
             return cd.isRefrigerated();
         }
         return null;
+    }
+
+    public List<Drone> findByHubId(UUID id) {
+        final String sql = """
+                    SELECT
+                    id,
+                    hub_id,
+                    name,
+                    type,
+                    flight_range,
+                    maximum_payload,
+                    maximum_speed,
+                    is_available,
+                    last_maintenance,
+                    current_load,
+                    has_refrigerator
+                FROM drones
+                WHERE hub_id = ?
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Drone> out = new ArrayList<>();
+                while (rs.next()) {
+                    out.add(mapDrone(rs));
+                }
+                return out;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to find drone by hub's id: " + e.getMessage(), e);
+        }
     }
 }
 

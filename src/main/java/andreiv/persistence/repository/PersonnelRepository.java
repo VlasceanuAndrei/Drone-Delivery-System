@@ -145,6 +145,7 @@ public final class PersonnelRepository implements BaseRepository<Personnel> {
         PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setObject(1, id);
             ps.setObject(2, entity.getId());
+
             ps.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException("Failed to update hub's id: " + e.getMessage(), e);

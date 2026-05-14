@@ -226,6 +226,7 @@ public class OrderDispatcher {
 
                             for (Order order2 : currentBatch) {
                                 assignedDroneToOrder.put(order2, previousSuitableDrones.getFirst());
+                                deliveredOrders.add(order2);
                                 hub.removeOrder(order2);
                                 removeUncollectedOrder(order2);
                             }

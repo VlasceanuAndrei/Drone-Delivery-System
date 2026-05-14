@@ -187,9 +187,46 @@ public final class OrderRepository implements BaseRepository<Order> {
         PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, status);
             ps.setObject(2, entity.getId());
+
+            ps.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException("Failed to update order's status: " + e.getMessage(), e);
         }
     }
-}
 
+    public void updateHubId(Order entity, UUID id) {
+        final String sql = """
+                UPDATE drones
+                SET hub_id = ?
+                WHERE id = ?
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, id);
+            ps.setObject(2, entity.getId());
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update hub's id inside order: " + e.getMessage(), e);
+        }
+    }
+
+    public void updateDroneId(Order entity, UUID id) {
+        final String sql = """
+                UPDATE drones
+                SET assigned_drone_id = ?
+                WHERE id = ?
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+        PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, id);
+            ps.setObject(2, entity.getId());
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update drone's id inside order: " + e.getMessage(), e);
+        }
+    }
+}
