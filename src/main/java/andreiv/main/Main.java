@@ -13,6 +13,7 @@ import andreiv.model.order.Package;
 import andreiv.model.personnel.*;
 import andreiv.service.*;
 import andreiv.audit.AuditService;
+import andreiv.persistence.repository.*;
 
 public class Main {
     private static final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
@@ -20,9 +21,22 @@ public class Main {
     private static final HashMap<Integer, DroneHub> hubList = new HashMap<>();
     private static final AtomicInteger hubId = new AtomicInteger(1);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
+    private static final AddressRepository addressRepository = new AddressRepository();
+    private static final ContactRepository contactRepository = new ContactRepository();
+    private static final DroneHubRepository droneHubRepository = new DroneHubRepository();
+    private static final DroneRepository droneRepository = new DroneRepository();
+    private static final OrderRepository orderRepository = new OrderRepository();
+    private static final PackageRepository packageRepository = new PackageRepository();
+    private static final PersonnelRepository personnelRepository = new PersonnelRepository();
 
     public static void main(String[] args) {
+
+        if (droneRepository.findAll().isEmpty() || droneHubRepository.findAll().isEmpty()) {
+            initialDbSeed();
+        }
+
         loadSampleData();
+
         while (true) {
             displayMenu();
             handleMenuInput();
@@ -139,6 +153,8 @@ public class Main {
         hubList.put(newHubId, newHub);
         dispatcher.addHub(newHub);
 
+        droneHubRepository.save(newHub);
+
         System.out.println(newHub.getName() + " (ID: " + newHubId + ") has been successfully created.");
     }
 
@@ -235,6 +251,9 @@ public class Main {
                 droneMaximumSpeed, droneAvailability, droneLastMaintenanceDate, droneRefrigerator);
 
         hubToAddDroneTo.addDrone(newDrone);
+
+        droneRepository.save(newDrone);
+        droneRepository.updateHubId(newDrone, hubToAddDroneTo.getId());
         System.out.println("Drone " + newDrone.getName() + " has been successfully added to hub " + hubToAddDroneTo.getName() + " (ID: " + hubIdInput + ").");
     }
 
@@ -255,7 +274,9 @@ public class Main {
         sourceHub.removeDrone(droneToMove);
         destinationHub.addDrone(droneToMove);
 
-        System.out.println("Drone move successfully.");
+        droneRepository.updateHubId(droneToMove, destinationHub.getId());
+
+        System.out.println("Drone moved successfully.");
     }
 
     private static void displayHubFleet() {
@@ -304,6 +325,13 @@ public class Main {
         Order newOrder = orderBuilder.build();
         System.out.println("Order successfully created.");
 
+        addressRepository.save(orderBuilder.getSenderAddress());
+        contactRepository.save(orderBuilder.getSenderContact());
+        addressRepository.save(orderBuilder.getReceiverAddress());
+        contactRepository.save(orderBuilder.getReceiverContact());
+        packageRepository.save(orderBuilder.getPkg());
+        orderRepository.save(newOrder);
+
         dispatcher.addUncollectedOrder(newOrder);
     }
 
@@ -337,6 +365,9 @@ public class Main {
 
         Personnel member = new Personnel(fullName, certification);
         hubToAddPersonnelTo.addPersonnel(member);
+
+        personnelRepository.save(member);
+        personnelRepository.updateHubId(member, hubToAddPersonnelTo.getId());
 
         System.out.println("Personnel successfully added to hub " + hubToAddPersonnelTo.getName() + " (ID: " + hubIdInput + ").");
     }
@@ -624,48 +655,87 @@ public class Main {
     }
 
     private static void loadSampleData() {
+        List<DroneHub> hubs = droneHubRepository.findAll();
+        for (DroneHub hub : hubs) {
+            int id = hubId.getAndIncrement();
+            hubList.put(id, hub);
+            dispatcher.addHub(hub);
+        }
+
+        List<Order> uncollectedOrders = orderRepository.getUncollectedOrders();
+        for (Order order : uncollectedOrders) {
+            dispatcher.addUncollectedOrder(order);
+        }
+    }
+
+    private static void initialDbSeed() {
         Address hub1Address = new Address("Romania", "Bucharest", "Bd. Aviatorilor", "42A");
+        addressRepository.save(hub1Address);
+
         DroneHub hub1 = new DroneHub("Aviatorilor Dispatch Hub", hub1Address);
-        hubList.put(1, hub1);
-        dispatcher.addHub(hub1);
+        droneHubRepository.save(hub1);
 
         Address hub2Address = new Address("France", "Saint-Tropez", "Rue du Général Allard", "9");
-        DroneHub hub2 = new DroneHub("Allard Coastal Hub", hub2Address);
-        hubList.put(2, hub2);
-        dispatcher.addHub(hub2);
+        addressRepository.save(hub2Address);
 
-        hubId.set(3);
+        DroneHub hub2 = new DroneHub("Allard Coastal Hub", hub2Address);
+        droneHubRepository.save(hub2);
 
         Drone d1 = new Drone("Falcon-S3", 220, 150.0, 60.0, true);
+        droneRepository.save(d1);
+        droneRepository.updateHubId(d1, hub1.getId());
+
         Drone d2 = new CargoDrone("IceMule-C1", 280, 325.0, 45.0, true, true);
+        droneRepository.save(d2);
+        droneRepository.updateHubId(d2, hub1.getId());
+
         Drone d3 = new HighSpeedDrone("Needle-H7", 350, 120.0, 120.0, true);
-        hub1.addDrone(d1);
-        hub1.addDrone(d3);
-        hub2.addDrone(d2);
+        droneRepository.save(d3);
+        droneRepository.updateHubId(d3, hub2.getId());
+
+        Drone d4 = new CargoDrone("Stratus-B4", 240, 410.0, 38.0, true, false);
+        droneRepository.save(d4);
+        droneRepository.updateHubId(d4, hub1.getId());
 
         Personnel p1 = new Personnel("Sorin Patrascu", "MECHANIC");
+        personnelRepository.save(p1);
+        personnelRepository.updateHubId(p1, hub1.getId());
+
         Personnel p2 = new Personnel("Irina Pop", "OPERATOR");
-        hub1.addPersonnel(p1);
-        hub1.addPersonnel(p2);
+        personnelRepository.save(p2);
+        personnelRepository.updateHubId(p2, hub2.getId());
 
         Contact sender1 = new Contact("Atelier Nocturn", new Address("Romania", "Bucharest", "Strada Arthur Verona", "17"),
                 "atelier.nocturn@test.com", "+40712345678", "", false);
+        contactRepository.save(sender1);
+
         Contact receiver1 = new Contact("Maison du Port", new Address("France", "Saint-Tropez", "Quai Jean Jaurès", "5"),
                 "maison.du.port@test.com", "+33612345678", "", false);
+        contactRepository.save(receiver1);
+
         Package pkg1 = new Package(2.5, 10.0, 20.0, 5.0, new String[]{"FRAGILE"});
-        Order uncollected = new Order(sender1, receiver1, pkg1);
-        dispatcher.addUncollectedOrder(uncollected);
+        packageRepository.save(pkg1);
+
+        Order order1 = new Order(sender1, receiver1, pkg1);
+        orderRepository.save(order1);
 
         Contact sender2 = new Contact("Nord Atelier SRL", new Address("Romania", "Bucharest", "Calea Dorobanți", "214"),
                 "nord.atelier@test.com", "+40722222222", "RO12ABCD", true);
+        contactRepository.save(sender2);
+
         Contact receiver2 = new Contact("Villa Azur", new Address("France", "Saint-Tropez", "Chemin des Salins", "28"),
                 "villa.azur@test.com", "+33633333333", "", false);
-        Package pkg2 = new Package(1.0, 5.0, 12.0, 4.0, new String[]{"EXPRESS_DELIVERY"});
-        Order delivered = new Order(sender2, receiver2, pkg2);
-        dispatcher.getDeliveredOrders().add(delivered);
-        hub2.addOrder(delivered);
-    }
+        contactRepository.save(receiver2);
 
+        Package pkg2 = new Package(1.0, 5.0, 12.0, 4.0, new String[]{"EXPRESS_DELIVERY"});
+        packageRepository.save(pkg2);
+
+        Order order2 = new Order(sender2, receiver2, pkg2);
+        orderRepository.save(order2);
+
+//        dispatcher.getDeliveredOrders().add(delivered);
+//        hub2.addOrder(delivered);
+    }
     private static void handleExit() {
         System.out.println("Exiting the application...");
         System.exit(0);

@@ -141,5 +141,55 @@ public final class OrderRepository implements BaseRepository<Order> {
             throw new RuntimeException("Failed to delete order: " + e.getMessage(), e);
         }
     }
+
+    public List<Order> getUncollectedOrders() {
+        final String sql = """
+                SELECT id, sender_contact_id, receiver_contact_id, package_id
+                FROM orders
+                WHERE status = 'UNCOLLECTED'
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+        PreparedStatement ps = c.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()) {
+            List<Order> out = new ArrayList<>();
+
+            while (rs.next()) {
+                UUID orderId = (UUID) rs.getObject("id");
+                UUID senderId = (UUID) rs.getObject("sender_contact_id");
+                UUID receiverId = (UUID) rs.getObject("receiver_contact_id");
+                UUID packageId = (UUID) rs.getObject("package_id");
+
+                Contact sender = contactRepository.findById(senderId)
+                        .orElseThrow(() -> new RuntimeException("Failed to load sender contact: " + senderId));
+                Contact receiver = contactRepository.findById(receiverId)
+                        .orElseThrow(() -> new RuntimeException("Failed to load receiver contact: " + receiverId));
+                Package pkg = packageRepository.findById(packageId)
+                        .orElseThrow(() -> new RuntimeException("Failed to load package: " + packageId));
+
+                out.add(new Order(orderId, sender, receiver, pkg));
+            }
+
+            return out;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get uncollected orders: " + e.getMessage(), e);
+        }
+    }
+
+    public void updateOrderStatus(Order entity, String status) {
+        final String sql = """
+                UPDATE orders
+                SET status = ?
+                WHERE id = ?
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+        PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, status);
+            ps.setObject(2, entity.getId());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update order's status: " + e.getMessage(), e);
+        }
+    }
 }
 

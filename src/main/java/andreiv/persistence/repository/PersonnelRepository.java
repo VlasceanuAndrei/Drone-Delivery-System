@@ -133,5 +133,22 @@ public final class PersonnelRepository implements BaseRepository<Personnel> {
             throw new RuntimeException("Failed to delete personnel: " + e.getMessage(), e);
         }
     }
+
+    public void updateHubId(Personnel entity, UUID id) {
+        final String sql = """
+                UPDATE personnel
+                SET hub_id = ?
+                WHERE id = ?
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+        PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, id);
+            ps.setObject(2, entity.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update hub's id: " + e.getMessage(), e);
+        }
+    }
 }
 

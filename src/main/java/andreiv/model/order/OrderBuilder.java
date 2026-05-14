@@ -43,4 +43,24 @@ public class OrderBuilder {
 
         return new Order(senderContact, receiverContact, pkg);
     }
+
+    public Address getSenderAddress() {
+        return senderAddress;
+    }
+
+    public Contact getSenderContact() {
+        return senderContact;
+    }
+
+    public Address getReceiverAddress() {
+        return receiverAddress;
+    }
+
+    public Contact getReceiverContact() {
+        return receiverContact;
+    }
+
+    public Package getPkg() {
+        return pkg;
+    }
 }

@@ -168,6 +168,23 @@ public final class DroneRepository implements BaseRepository<Drone> {
         }
     }
 
+    public void updateHubId(Drone entity, UUID id) {
+        final String sql = """
+                UPDATE drones
+                SET hub_id = ?
+                WHERE id = ?
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+        PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, id);
+            ps.setObject(2, entity.getId());
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update hub's id: " + e.getMessage(), e);
+        }
+    }
+
     private Drone mapDrone(ResultSet rs) throws SQLException {
         UUID id = (UUID) rs.getObject("id");
         String name = rs.getString("name");
