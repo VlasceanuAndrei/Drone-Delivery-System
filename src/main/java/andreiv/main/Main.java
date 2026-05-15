@@ -675,10 +675,10 @@ public class Main {
     }
 
     private static void initialDbSeed() {
-        Address hub1Address = new Address("Romania", "Bucharest", "Bd. Aviatorilor", "42A");
+        Address hub1Address = new Address("France", "Marseille", "Quai du Port", "12");
         addressRepository.save(hub1Address);
 
-        DroneHub hub1 = new DroneHub("Aviatorilor Dispatch Hub", hub1Address);
+        DroneHub hub1 = new DroneHub("Vieux-Port Dispatch Hub", hub1Address);
         droneHubRepository.save(hub1);
 
         Address hub2Address = new Address("France", "Saint-Tropez", "Rue du Général Allard", "9");
@@ -687,11 +687,11 @@ public class Main {
         DroneHub hub2 = new DroneHub("Allard Coastal Hub", hub2Address);
         droneHubRepository.save(hub2);
 
-        Drone d1 = new Drone("Falcon-S3", 220, 150.0, 60.0, true);
+        Drone d1 = new Drone("Falcon-S3", 550, 150.0, 60.0, true);
         droneRepository.save(d1);
         droneRepository.updateHubId(d1, hub1.getId());
 
-        Drone d2 = new CargoDrone("IceMule-C1", 280, 325.0, 45.0, true, true);
+        Drone d2 = new CargoDrone("IceMule-C1", 425, 325.0, 45.0, true, true);
         droneRepository.save(d2);
         droneRepository.updateHubId(d2, hub1.getId());
 
@@ -699,7 +699,7 @@ public class Main {
         droneRepository.save(d3);
         droneRepository.updateHubId(d3, hub2.getId());
 
-        Drone d4 = new CargoDrone("Stratus-B4", 240, 410.0, 38.0, true, false);
+        Drone d4 = new CargoDrone("Stratus-B4", 550, 410.0, 38.0, true, false);
         droneRepository.save(d4);
         droneRepository.updateHubId(d4, hub1.getId());
 
@@ -711,8 +711,8 @@ public class Main {
         personnelRepository.save(p2);
         personnelRepository.updateHubId(p2, hub2.getId());
 
-        Contact sender1 = new Contact("Atelier Nocturn", new Address("Romania", "Bucharest", "Strada Arthur Verona", "17"),
-                "atelier.nocturn@test.com", "+40712345678", "", false);
+        Contact sender1 = new Contact("Atelier Nocturn", new Address("France", "Marseille", "Rue Paradis", "17"),
+                "atelier.nocturn@test.com", "+33612345670", "", false);
         contactRepository.save(sender1);
 
         Contact receiver1 = new Contact("Maison du Port", new Address("France", "Saint-Tropez", "Quai Jean Jaurès", "5"),
@@ -725,15 +725,15 @@ public class Main {
         Order order1 = new Order(sender1, receiver1, pkg1);
         orderRepository.save(order1);
 
-        Contact sender2 = new Contact("Nord Atelier SRL", new Address("Romania", "Bucharest", "Calea Dorobanți", "214"),
-                "nord.atelier@test.com", "+40722222222", "RO12ABCD", true);
+        Contact sender2 = new Contact("Nord Atelier SRL", new Address("France", "Marseille", "Boulevard Longchamp", "214"),
+                "nord.atelier@test.com", "+33622222222", "FR12345678901", true);
         contactRepository.save(sender2);
 
         Contact receiver2 = new Contact("Villa Azur", new Address("France", "Saint-Tropez", "Chemin des Salins", "28"),
                 "villa.azur@test.com", "+33633333333", "", false);
         contactRepository.save(receiver2);
 
-        Package pkg2 = new Package(1.0, 5.0, 12.0, 4.0, new String[]{"EXPRESS_DELIVERY"});
+        Package pkg2 = new Package(1.0, 5.0, 12.0, 4.0, new String[]{"NONE"});
         packageRepository.save(pkg2);
 
         Order order2 = new Order(sender2, receiver2, pkg2);

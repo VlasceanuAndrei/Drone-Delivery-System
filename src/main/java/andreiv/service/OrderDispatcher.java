@@ -183,6 +183,7 @@ public class OrderDispatcher {
                     List<Order> currentBatch = new ArrayList<>();
                     Set<PackageRequirement> packageRequirements = new HashSet<>();
                     List<Double> previousCoordinates = hubCoordinates.get();
+                    List<Drone> currentSuitableDrones = new ArrayList<>();
                     double currentDistance = 0.0;
                     double currentLoad = 0.0;
                     for (Order order : sortedOrdersByDistance) {
@@ -202,7 +203,7 @@ public class OrderDispatcher {
                             double newDistance = currentDistance + distance;
                             double newLoad = currentLoad + order.getPackage().getWeight();
 
-                            List<Drone> currentSuitableDrones = hub.getSuitableDronesForPath(newPackageRequirements, newDistance, newLoad);
+                            currentSuitableDrones = hub.getSuitableDronesForPath(newPackageRequirements, newDistance, newLoad);
 
                             if (!currentSuitableDrones.isEmpty()) {
                                 packageRequirements = newPackageRequirements;
@@ -236,6 +237,15 @@ public class OrderDispatcher {
                             currentDistance = 0.0;
                             currentLoad = 0.0;
                             previousCoordinates = hubCoordinates.get();
+                        }
+                    }
+
+                    if (!currentBatch.isEmpty() && !currentSuitableDrones.isEmpty()) {
+                        for (Order order : currentBatch) {
+                            assignedDroneToOrder.put(order, currentSuitableDrones.getFirst());
+                            deliveredOrders.add(order);
+                            hub.removeOrder(order);
+                            removeUncollectedOrder(order);
                         }
                     }
                 }

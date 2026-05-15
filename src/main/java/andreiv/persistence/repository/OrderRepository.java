@@ -194,39 +194,59 @@ public final class OrderRepository implements BaseRepository<Order> {
         }
     }
 
-    public void updateHubId(Order entity, UUID id) {
+    public void updateHubId(Order entity, UUID hubId) {
         final String sql = """
-                UPDATE drones
+                UPDATE orders
                 SET hub_id = ?
                 WHERE id = ?
                 """;
 
         try (Connection c = DbConnectionManager.getInstance().getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setObject(1, id);
+            ps.setObject(1, hubId);
             ps.setObject(2, entity.getId());
 
             ps.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update hub's id inside order: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to update order hub id: " + e.getMessage(), e);
         }
     }
 
-    public void updateDroneId(Order entity, UUID id) {
+    public void updateDroneId(Order entity, UUID droneId) {
         final String sql = """
-                UPDATE drones
+                UPDATE orders
                 SET assigned_drone_id = ?
                 WHERE id = ?
                 """;
 
         try (Connection c = DbConnectionManager.getInstance().getConnection();
         PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setObject(1, id);
+            ps.setObject(1, droneId);
             ps.setObject(2, entity.getId());
 
             ps.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException("Failed to update drone's id inside order: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to update order assigned drone id: " + e.getMessage(), e);
+        }
+    }
+
+    public void markAsDelivered(Order entity, UUID droneId) {
+        final String sql = """
+                UPDATE orders
+                SET status = 'DELIVERED',
+                    assigned_drone_id = ?,
+                    delivered_at = now()
+                WHERE id = ?
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, droneId);
+            ps.setObject(2, entity.getId());
+
+            ps.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to mark order as delivered: " + e.getMessage(), e);
         }
     }
 }

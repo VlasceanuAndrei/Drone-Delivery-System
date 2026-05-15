@@ -22,9 +22,8 @@ public class OrderStatusPersistence {
         }
 
         for (Order order : dispatcher.getDeliveredOrders()) {
-            orderRepository.updateOrderStatus(order, "DELIVERED");
             Drone droneAssigned = dispatcher.getAssignedDroneToOrder().get(order);
-            orderRepository.updateDroneId(order, droneAssigned.getId());
+            orderRepository.markAsDelivered(order, droneAssigned.getId());
         }
     }
 }
