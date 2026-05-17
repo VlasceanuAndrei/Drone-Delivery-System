@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane minHeight="600.0" minWidth="1024.0" prefHeight="720.0" prefWidth="1280.0" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/25.0.3" xmlns:fx="http://javafx.com/fxml/1" fx:controller="andreiv.ui.OrdersViewController">
+   <left>
+      <VBox minWidth="200.0" prefWidth="220.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+         <children>
+            <VBox>
+               <children>
+                  <Label styleClass="brand-title" text="Drone Delivery System" />
+                  <Label styleClass="brand-subtitle" text="You send, we deliver" />
+               </children>
+            </VBox>
+            <Button mnemonicParsing="false" text="Dashboard" />
+            <Button mnemonicParsing="false" text="Hubs" />
+            <Button mnemonicParsing="false" styleClass="nav-active" text="Orders" />
+            <Button mnemonicParsing="false" text="Fleet" />
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <HBox styleClass="page-header">
+               <children>
+                  <Label styleClass="page-title" text="Orders Overview" />
+                  <TextField promptText="Search order..." styleClass="search-field" />
+               </children>
+            </HBox>
+            <GridPane VBox.vgrow="ALWAYS">
+              <columnConstraints>
+                <ColumnConstraints minWidth="360.0" prefWidth="420.0" />
+                <ColumnConstraints hgrow="ALWAYS" minWidth="400.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints vgrow="ALWAYS" />
+              </rowConstraints>
+               <children>
+                  <VBox styleClass="card" GridPane.hgrow="NEVER">
+                     <children>
+                        <Label styleClass="card-title" text="Create new order" />
+                        <HBox styleClass="step-indicator">
+                           <children>
+                              <Label fx:id="step1Label" styleClass="step-active" text="1" />
+                              <Label fx:id="step2Label" text="2" />
+                              <Label fx:id="step3Label" text="3" />
+                              <Label fx:id="step4Label" text="4" />
+                              <Label fx:id="step5Label" text="5" />
+                           </children>
+                        </HBox>
+                        <StackPane VBox.vgrow="ALWAYS">
+                           <children>
+                              <VBox fx:id="senderContactPane">
+                                 <children>
+                                    <Label styleClass="section-label" text="Sender Details" />
+                                    <Label styleClass="field-label" text="FULL NAME" />
+                                    <TextField fx:id="senderNameField" promptText="Sender's name..." />
+                                    <Label styleClass="field-label" text="EMAIL ADDRESS" />
+                                    <TextField fx:id="senderEmailField" promptText="Sender's email address..." />
+                                    <Label styleClass="field-label" text="PHONE NUMBER" />
+                                    <TextField fx:id="senderPhoneField" promptText="Sender's phone number..." />
+                                    <CheckBox fx:id="senderCompanyCheck" mnemonicParsing="false" text="The sender is a company" />
+                                    <Label styleClass="field-label" text="VAT NUMBER" />
+                                    <TextField fx:id="senderVatField" promptText="Sender's VAT number..." />
+                                 </children>
+                              </VBox>
+                              <VBox fx:id="senderAddressPane" managed="false" visible="false">
+                                 <children>
+                                    <Label styleClass="field-label" text="PICKUP ADDRESS" />
+                                    <Label styleClass="field-label" text="Country" />
+                                    <TextField fx:id="senderCountryField" promptText="Sender's country..." />
+                                    <Label styleClass="field-label" text="City" />
+                                    <TextField fx:id="senderCityField" promptText="Sender's city..." />
+                                    <Label styleClass="field-label" text="Street" />
+                                    <TextField fx:id="senderStreetField" promptText="Sender's street..." />
+                                    <Label styleClass="field-label" text="Number" />
+                                    <TextField fx:id="senderNumberField" promptText="Sender's street number..." />
+                                 </children>
+                              </VBox>
+                              <VBox fx:id="receiverContactPane" managed="false" visible="false">
+                                 <children>
+                                    <Label styleClass="section-label" text="Receiver Details" />
+                                    <Label styleClass="field-label" text="FULL NAME" />
+                                    <TextField fx:id="receiverNameField" promptText="Receiver's name..." />
+                                    <Label styleClass="field-label" text="EMAIL ADDRESS" />
+                                    <TextField fx:id="receiverEmailField" promptText="Receiver's email address..." />
+                                    <Label styleClass="field-label" text="PHONE NUMBER" />
+                                    <TextField fx:id="receiverPhoneField" promptText="Receiver's phone number..." />
+                                    <CheckBox fx:id="receiverCompanyCheck" mnemonicParsing="false" text="The receiver is a company" />
+                                    <Label styleClass="field-label" text="VAT NUMBER" />
+                                    <TextField fx:id="receiverVatField" promptText="Receiver's VAT number..." />
+                                 </children>
+                              </VBox>
+                              <VBox fx:id="receiverAddressPane" managed="false" visible="false">
+                                 <children>
+                                    <Label styleClass="field-label" text="DESTINATION ADDRESS" />
+                                    <Label styleClass="field-label" text="Country" />
+                                    <TextField fx:id="receiverCountryField" promptText="Receiver's country..." />
+                                    <Label styleClass="field-label" text="City" />
+                                    <TextField fx:id="receiverCityField" promptText="Receiver's city..." />
+                                    <Label styleClass="field-label" text="Street" />
+                                    <TextField fx:id="receiverStreetField" promptText="Receiver's street..." />
+                                    <Label styleClass="field-label" text="Number" />
+                                    <TextField fx:id="receiverNumberField" promptText="Receiver's street number..." />
+                                 </children>
+                              </VBox>
+                              <VBox fx:id="packagePane" managed="false" visible="false">
+                                 <children>
+                                    <Label styleClass="section-label" text="Package Details" />
+                                    <Label styleClass="field-label" text="WEIGHT (KG)" />
+                                    <TextField fx:id="packageWeightField" promptText="Weight..." />
+                                    <Label styleClass="field-label" text="WIDTH" />
+                                    <TextField fx:id="packageWidthField" promptText="Width..." />
+                                    <Label styleClass="field-label" text="LENGTH" />
+                                    <TextField fx:id="packageLengthField" promptText="Length..." />
+                                    <Label styleClass="field-label" text="HEIGHT" />
+                                    <TextField fx:id="packageHeightField" promptText="Height..." />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </StackPane>
+                        <HBox>
+                           <children>
+                              <Button fx:id="btnCancel" mnemonicParsing="false" onAction="#onCancel" styleClass="button-secondary" text="Cancel" />
+                              <Button fx:id="btnPrevious" mnemonicParsing="false" onAction="#onPrevious" styleClass="button-secondary" text="Previous step" />
+                              <Button fx:id="btnNext" mnemonicParsing="false" onAction="#onNext" styleClass="button-primary" text="Next step" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox styleClass="card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                     <children>
+                        <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                          <tabs>
+                            <Tab text="Uncollected">
+                              <content>
+                                <AnchorPane>
+                                       <children>
+                                          <TableView fx:id="ordersTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                              <TableColumn prefWidth="120.0" text="ORDER ID" />
+                                              <TableColumn prefWidth="180.0" text="SENDER" />
+                                              <TableColumn prefWidth="180.0" text="RECIPIENT" />
+                                            </columns>
+                                          </TableView>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                            <Tab text="Delivered">
+                              <content>
+                                <AnchorPane minHeight="0.0" minWidth="0.0" />
+                              </content>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
+                     </children>
+                  </VBox>
+               </children>
+            </GridPane>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>
