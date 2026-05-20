@@ -34,11 +34,12 @@ public class HubsViewController {
     @FXML private TableView<Drone> dronesTable;
     @FXML private TableView<Personnel> personnelTable;
     @FXML private Button navHubs;
+    @FXML private Button navFleet;
     @FXML private Button navOrders;
 
     @FXML
     private void initialize() {
-        OrdersApp.setActiveNav(navHubs, navHubs, navOrders);
+        OrdersApp.setActiveNav(navHubs, navHubs, navFleet, navOrders);
         setupHubSelector();
         setupTables();
         refreshHubList();
@@ -47,6 +48,11 @@ public class HubsViewController {
     @FXML
     private void goHubs() {
         OrdersApp.showHubs();
+    }
+
+    @FXML
+    private void goFleet() {
+        OrdersApp.showFleet();
     }
 
     @FXML

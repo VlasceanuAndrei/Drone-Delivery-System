@@ -31,13 +31,18 @@ public class OrdersApp extends Application {
         loadPage("hubs.fxml");
     }
 
+    public static void showFleet() {
+        loadPage("fleet.fxml");
+    }
+
     public static void showOrders() {
         loadPage("orders.fxml");
     }
 
     static void setActiveNav(javafx.scene.control.Button active, javafx.scene.control.Button navHubs,
-                            javafx.scene.control.Button navOrders) {
+                            javafx.scene.control.Button navFleet, javafx.scene.control.Button navOrders) {
         navHubs.getStyleClass().remove("nav-active");
+        navFleet.getStyleClass().remove("nav-active");
         navOrders.getStyleClass().remove("nav-active");
         active.getStyleClass().add("nav-active");
     }

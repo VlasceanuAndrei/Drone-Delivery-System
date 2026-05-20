@@ -27,6 +27,7 @@
                </children>
             </VBox>
             <Button fx:id="navHubs" mnemonicParsing="false" onAction="#goHubs" styleClass="nav-active" text="Hubs" />
+            <Button fx:id="navFleet" mnemonicParsing="false" onAction="#goFleet" text="Fleet" />
             <Button fx:id="navOrders" mnemonicParsing="false" onAction="#goOrders" text="Orders" />
          </children>
       </VBox>

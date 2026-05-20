@@ -29,6 +29,7 @@
                </children>
             </VBox>
             <Button fx:id="navHubs" mnemonicParsing="false" onAction="#goHubs" text="Hubs" />
+            <Button fx:id="navFleet" mnemonicParsing="false" onAction="#goFleet" text="Fleet" />
             <Button fx:id="navOrders" mnemonicParsing="false" onAction="#goOrders" styleClass="nav-active" text="Orders" />
          </children>
       </VBox>
@@ -39,7 +40,6 @@
             <HBox styleClass="page-header">
                <children>
                   <Label styleClass="page-title" text="Orders Overview" />
-                  <TextField promptText="Search order..." styleClass="search-field" />
                </children>
             </HBox>
             <GridPane VBox.vgrow="ALWAYS">

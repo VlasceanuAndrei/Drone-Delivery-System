@@ -51,13 +51,14 @@ public class OrdersViewController {
     @FXML private TableView<Order> ordersTable;
     @FXML private TableView<Order> deliveredOrdersTable;
     @FXML private Button navHubs;
+    @FXML private Button navFleet;
     @FXML private Button navOrders;
 
     private final Map<PackageRequirement, BooleanProperty> requirementSelections = new EnumMap<>(PackageRequirement.class);
 
     @FXML
     private void initialize() {
-        OrdersApp.setActiveNav(navOrders, navHubs, navOrders);
+        OrdersApp.setActiveNav(navOrders, navHubs, navFleet, navOrders);
         steps = new VBox[]{
                 senderContactPane, senderAddressPane, receiverContactPane, receiverAddressPane, packagePane
         };
@@ -72,6 +73,11 @@ public class OrdersViewController {
     @FXML
     private void goHubs() {
         OrdersApp.showHubs();
+    }
+
+    @FXML
+    private void goFleet() {
+        OrdersApp.showFleet();
     }
 
     @FXML
