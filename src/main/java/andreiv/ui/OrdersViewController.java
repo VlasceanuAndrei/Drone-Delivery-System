@@ -1,12 +1,22 @@
 package andreiv.ui;
 
+import andreiv.model.PackageRequirement;
 import andreiv.model.order.*;
 import andreiv.persistence.repository.*;
 import andreiv.service.OrderDispatcher;
 import andreiv.service.OrderStatusPersistence;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 public class OrdersViewController {
 
@@ -37,16 +47,36 @@ public class OrdersViewController {
     @FXML private CheckBox receiverCompanyCheck;
 
     @FXML private TextField packageWeightField, packageWidthField, packageLengthField, packageHeightField;
+    @FXML private MenuButton packageRequirementMenu;
+    @FXML private TableView<Order> ordersTable;
+    @FXML private TableView<Order> deliveredOrdersTable;
+    @FXML private Button navHubs;
+    @FXML private Button navOrders;
+
+    private final Map<PackageRequirement, BooleanProperty> requirementSelections = new EnumMap<>(PackageRequirement.class);
 
     @FXML
     private void initialize() {
+        OrdersApp.setActiveNav(navOrders, navHubs, navOrders);
         steps = new VBox[]{
                 senderContactPane, senderAddressPane, receiverContactPane, receiverAddressPane, packagePane
         };
         stepLabels = new Label[]{step1Label, step2Label, step3Label, step4Label, step5Label};
         bindVat(senderCompanyCheck, senderVatField);
         bindVat(receiverCompanyCheck, receiverVatField);
+        setupRequirementMenu();
+        setupOrdersTables();
         showStep(1);
+    }
+
+    @FXML
+    private void goHubs() {
+        OrdersApp.showHubs();
+    }
+
+    @FXML
+    private void goOrders() {
+        OrdersApp.showOrders();
     }
 
     @FXML
@@ -78,6 +108,7 @@ public class OrdersViewController {
         }
         senderCompanyCheck.setSelected(false);
         receiverCompanyCheck.setSelected(false);
+        clearRequirementSelections();
         showStep(1);
     }
 
@@ -93,6 +124,7 @@ public class OrdersViewController {
             dispatcher.addUncollectedOrder(order);
             OrderStatusPersistence.syncOrderStatus();
             showInfo("Order created successfully.");
+            refreshOrdersTables();
             onCancel();
         } catch (RuntimeException ex) {
             showError(ex.getMessage());
@@ -160,9 +192,102 @@ public class OrdersViewController {
                     parse(packageWidthField),
                     parse(packageLengthField),
                     parse(packageHeightField),
-                    new String[]{"NONE"});
+                    selectedRequirementNames());
             default -> { }
         }
+    }
+
+    private void setupOrdersTables() {
+        bindOrderTableColumns(ordersTable);
+        bindOrderTableColumns(deliveredOrdersTable);
+        refreshOrdersTables();
+    }
+
+    private void refreshOrdersTables() {
+        ordersTable.setItems(FXCollections.observableArrayList(orderRepository.getUncollectedOrders()));
+        deliveredOrdersTable.setItems(FXCollections.observableArrayList(orderRepository.getDeliveredOrders()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void bindOrderTableColumns(TableView<Order> table) {
+        for (TableColumn<Order, ?> column : table.getColumns()) {
+            TableColumn<Order, String> col = (TableColumn<Order, String>) column;
+            switch (col.getText()) {
+                case "ORDER ID" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(formatOrderId(data.getValue())));
+                case "SENDER" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(data.getValue().getSender().getName()));
+                case "RECIPIENT" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(data.getValue().getReceiver().getName()));
+                default -> { }
+            }
+        }
+        table.setPlaceholder(new Label("No content in table"));
+    }
+
+    private static String formatOrderId(Order order) {
+        String id = order.getId().toString();
+        return id.length() > 8 ? id.substring(0, 8) : id;
+    }
+
+    private void setupRequirementMenu() {
+        packageRequirementMenu.getItems().clear();
+        for (PackageRequirement requirement : PackageRequirement.values()) {
+            if (requirement == PackageRequirement.NONE) {
+                continue;
+            }
+            BooleanProperty selected = new SimpleBooleanProperty(false);
+            requirementSelections.put(requirement, selected);
+
+            CheckBox checkBox = new CheckBox(requirementLabel(requirement));
+            checkBox.selectedProperty().bindBidirectional(selected);
+            selected.addListener((obs, wasSelected, isSelected) -> updateRequirementMenuLabel());
+
+            CustomMenuItem menuItem = new CustomMenuItem(checkBox);
+            menuItem.setHideOnClick(false);
+            menuItem.getStyleClass().add("requirement-menu-item");
+            packageRequirementMenu.getItems().add(menuItem);
+        }
+        updateRequirementMenuLabel();
+    }
+
+    private void clearRequirementSelections() {
+        requirementSelections.values().forEach(property -> property.set(false));
+        updateRequirementMenuLabel();
+    }
+
+    private void updateRequirementMenuLabel() {
+        List<String> labels = requirementSelections.entrySet().stream()
+                .filter(entry -> entry.getValue().get())
+                .map(entry -> requirementLabel(entry.getKey()))
+                .toList();
+
+        if (labels.isEmpty()) {
+            packageRequirementMenu.setText("Select requirements...");
+            packageRequirementMenu.getStyleClass().remove("has-selection");
+        } else {
+            packageRequirementMenu.setText(String.join(", ", labels));
+            if (!packageRequirementMenu.getStyleClass().contains("has-selection")) {
+                packageRequirementMenu.getStyleClass().add("has-selection");
+            }
+        }
+    }
+
+    private String[] selectedRequirementNames() {
+        return requirementSelections.entrySet().stream()
+                .filter(entry -> entry.getValue().get())
+                .map(entry -> entry.getKey().name())
+                .toArray(String[]::new);
+    }
+
+    static String requirementLabel(PackageRequirement requirement) {
+        return switch (requirement) {
+            case NONE -> "None";
+            case REFRIGERATED -> "Refrigerated";
+            case EXPRESS_DELIVERY -> "Express delivery";
+            case FRAGILE -> "Fragile";
+            case HAZARDOUS -> "Hazardous";
+        };
     }
 
     private static void bindVat(CheckBox company, TextField vat) {

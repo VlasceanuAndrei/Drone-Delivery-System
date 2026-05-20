@@ -108,6 +108,88 @@
     -fx-background-color: #FFFFFF;
 }
 
+.hub-selector {
+    -fx-background-color: #F8FAFC;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 8 12;
+}
+
+.hub-selector:focused {
+    -fx-border-color: #415A77;
+    -fx-background-color: #FFFFFF;
+}
+
+/* Multi-select requirements dropdown */
+.requirements-menu {
+    -fx-background-color: #F8FAFC;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 10 14;
+    -fx-text-fill: #64748B;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.requirements-menu:focused,
+.requirements-menu:showing {
+    -fx-border-color: #415A77;
+    -fx-background-color: #FFFFFF;
+    -fx-text-fill: #1B263B;
+}
+
+.requirements-menu.has-selection {
+    -fx-text-fill: #1B263B;
+}
+
+.requirements-menu .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.requirements-menu .arrow {
+    -fx-background-color: #415A77;
+}
+
+.context-menu {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2E8F0;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 6;
+    -fx-effect: dropshadow(gaussian, rgba(27, 38, 59, 0.12), 16, 0, 0, 4);
+}
+
+.requirement-menu-item {
+    -fx-background-color: transparent;
+    -fx-padding: 4 8;
+}
+
+.requirement-menu-item:hover,
+.requirement-menu-item:focused {
+    -fx-background-color: #E2E8F0;
+}
+
+.requirement-menu-item .check-box {
+    -fx-text-fill: #1B263B;
+}
+
+.requirement-menu-item:hover .check-box,
+.requirement-menu-item:focused .check-box {
+    -fx-text-fill: #1B263B;
+}
+
+.requirement-menu-item .check-box .box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #CBD5E1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.requirement-menu-item .check-box:selected .mark {
+    -fx-background-color: #1B263B;
+}
+
 /* Wizard steps */
 .step-indicator .label {
     -fx-font-family: "JetBrains Mono", "Consolas", monospace;

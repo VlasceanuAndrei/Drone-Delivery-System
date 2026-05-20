@@ -134,6 +134,37 @@ public final class PersonnelRepository implements BaseRepository<Personnel> {
         }
     }
 
+    public List<Personnel> findByHubId(UUID hubId) {
+        final String sql = """
+                SELECT id, hub_id, full_name, certification, is_available
+                FROM personnel
+                WHERE hub_id = ?
+                ORDER BY full_name
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, hubId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Personnel> out = new ArrayList<>();
+
+                while (rs.next()) {
+                    out.add(new Personnel(
+                            (UUID) rs.getObject("id"),
+                            rs.getString("full_name"),
+                            rs.getString("certification"),
+                            rs.getBoolean("is_available")
+                    ));
+                }
+
+                return out;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to list personnel for hub: " + e.getMessage(), e);
+        }
+    }
+
     public void updateHubId(Personnel entity, UUID id) {
         final String sql = """
                 UPDATE personnel

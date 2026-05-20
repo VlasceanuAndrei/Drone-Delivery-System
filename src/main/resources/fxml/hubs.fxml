@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane minHeight="600.0" minWidth="1024.0" prefHeight="720.0" prefWidth="1280.0" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="andreiv.ui.HubsViewController">
+   <left>
+      <VBox minWidth="200.0" prefWidth="220.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+         <children>
+            <VBox>
+               <children>
+                  <Label styleClass="brand-title" text="Drone Delivery System" />
+                  <Label styleClass="brand-subtitle" text="You send, we deliver" />
+               </children>
+            </VBox>
+            <Button fx:id="navHubs" mnemonicParsing="false" onAction="#goHubs" styleClass="nav-active" text="Hubs" />
+            <Button fx:id="navOrders" mnemonicParsing="false" onAction="#goOrders" text="Orders" />
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <HBox styleClass="page-header">
+               <children>
+                  <Label styleClass="page-title" text="Hubs Overview" />
+               </children>
+            </HBox>
+            <GridPane VBox.vgrow="ALWAYS">
+              <columnConstraints>
+                <ColumnConstraints minWidth="360.0" prefWidth="420.0" />
+                <ColumnConstraints hgrow="ALWAYS" minWidth="400.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints vgrow="ALWAYS" />
+              </rowConstraints>
+               <children>
+                  <VBox styleClass="card" GridPane.hgrow="NEVER">
+                     <children>
+                        <Label styleClass="card-title" text="Create new hub" />
+                        <Label styleClass="field-label" text="HUB NAME" />
+                        <TextField fx:id="hubNameField" promptText="Hub name..." />
+                        <Label styleClass="section-label" text="Hub Address" />
+                        <Label styleClass="field-label" text="COUNTRY" />
+                        <TextField fx:id="hubCountryField" promptText="Country..." />
+                        <Label styleClass="field-label" text="CITY" />
+                        <TextField fx:id="hubCityField" promptText="City..." />
+                        <Label styleClass="field-label" text="STREET" />
+                        <TextField fx:id="hubStreetField" promptText="Street..." />
+                        <Label styleClass="field-label" text="NUMBER" />
+                        <TextField fx:id="hubNumberField" promptText="Street number..." />
+                        <HBox>
+                           <children>
+                              <Button fx:id="btnClearHub" mnemonicParsing="false" onAction="#onClearHubForm" styleClass="button-secondary" text="Clear" />
+                              <Button fx:id="btnCreateHub" mnemonicParsing="false" onAction="#onCreateHub" styleClass="button-primary" text="Create hub" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox styleClass="card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                     <children>
+                        <Label styleClass="card-title" text="Hub details" />
+                        <Label styleClass="field-label" text="SELECT HUB" />
+                        <ComboBox fx:id="hubSelectorCombo" maxWidth="Infinity" promptText="Select a hub..." styleClass="hub-selector" />
+                        <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                          <tabs>
+                            <Tab text="Drones">
+                              <content>
+                                <AnchorPane>
+                                       <children>
+                                          <TableView fx:id="dronesTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                              <TableColumn prefWidth="160.0" text="NAME" />
+                                              <TableColumn prefWidth="120.0" text="TYPE" />
+                                              <TableColumn prefWidth="120.0" text="STATUS" />
+                                            </columns>
+                                          </TableView>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                            <Tab text="Personnel">
+                              <content>
+                                <AnchorPane>
+                                       <children>
+                                          <TableView fx:id="personnelTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                              <TableColumn prefWidth="200.0" text="NAME" />
+                                              <TableColumn prefWidth="140.0" text="ROLE" />
+                                              <TableColumn prefWidth="120.0" text="STATUS" />
+                                            </columns>
+                                          </TableView>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
+                          </tabs>
+                        </TabPane>
+                     </children>
+                  </VBox>
+               </children>
+            </GridPane>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

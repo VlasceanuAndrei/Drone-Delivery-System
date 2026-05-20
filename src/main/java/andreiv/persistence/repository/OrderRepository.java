@@ -143,36 +143,48 @@ public final class OrderRepository implements BaseRepository<Order> {
     }
 
     public List<Order> getUncollectedOrders() {
+        return findByStatus("UNCOLLECTED");
+    }
+
+    public List<Order> getDeliveredOrders() {
+        return findByStatus("DELIVERED");
+    }
+
+    private List<Order> findByStatus(String status) {
         final String sql = """
                 SELECT id, sender_contact_id, receiver_contact_id, package_id
                 FROM orders
-                WHERE status = 'UNCOLLECTED'
+                WHERE status = ?
+                ORDER BY created_at DESC
                 """;
 
         try (Connection c = DbConnectionManager.getInstance().getConnection();
-        PreparedStatement ps = c.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()) {
-            List<Order> out = new ArrayList<>();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, status);
 
-            while (rs.next()) {
-                UUID orderId = (UUID) rs.getObject("id");
-                UUID senderId = (UUID) rs.getObject("sender_contact_id");
-                UUID receiverId = (UUID) rs.getObject("receiver_contact_id");
-                UUID packageId = (UUID) rs.getObject("package_id");
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Order> out = new ArrayList<>();
 
-                Contact sender = contactRepository.findById(senderId)
-                        .orElseThrow(() -> new RuntimeException("Failed to load sender contact: " + senderId));
-                Contact receiver = contactRepository.findById(receiverId)
-                        .orElseThrow(() -> new RuntimeException("Failed to load receiver contact: " + receiverId));
-                Package pkg = packageRepository.findById(packageId)
-                        .orElseThrow(() -> new RuntimeException("Failed to load package: " + packageId));
+                while (rs.next()) {
+                    UUID orderId = (UUID) rs.getObject("id");
+                    UUID senderId = (UUID) rs.getObject("sender_contact_id");
+                    UUID receiverId = (UUID) rs.getObject("receiver_contact_id");
+                    UUID packageId = (UUID) rs.getObject("package_id");
 
-                out.add(new Order(orderId, sender, receiver, pkg));
+                    Contact sender = contactRepository.findById(senderId)
+                            .orElseThrow(() -> new RuntimeException("Failed to load sender contact: " + senderId));
+                    Contact receiver = contactRepository.findById(receiverId)
+                            .orElseThrow(() -> new RuntimeException("Failed to load receiver contact: " + receiverId));
+                    Package pkg = packageRepository.findById(packageId)
+                            .orElseThrow(() -> new RuntimeException("Failed to load package: " + packageId));
+
+                    out.add(new Order(orderId, sender, receiver, pkg));
+                }
+
+                return out;
             }
-
-            return out;
         } catch (Exception e) {
-            throw new RuntimeException("Failed to get uncollected orders: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to get orders with status " + status + ": " + e.getMessage(), e);
         }
     }
 
