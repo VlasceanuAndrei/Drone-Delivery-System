@@ -108,6 +108,21 @@
                                     </AnchorPane>
                               </content>
                             </Tab>
+                            <Tab text="Orders">
+                              <content>
+                                <AnchorPane>
+                                       <children>
+                                          <TableView fx:id="hubOrdersTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <columns>
+                                              <TableColumn prefWidth="120.0" text="ORDER ID" />
+                                              <TableColumn prefWidth="180.0" text="SENDER" />
+                                              <TableColumn prefWidth="180.0" text="RECIPIENT" />
+                                            </columns>
+                                          </TableView>
+                                       </children>
+                                    </AnchorPane>
+                              </content>
+                            </Tab>
                           </tabs>
                         </TabPane>
                      </children>

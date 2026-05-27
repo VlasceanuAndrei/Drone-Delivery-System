@@ -107,6 +107,30 @@ public class OrdersViewController {
     }
 
     @FXML
+    private void onPickUpOrders() {
+        try {
+            dispatcher.assignUncollectedOrdersToHubs();
+            OrderStatusPersistence.syncOrderStatus();
+            refreshOrdersTables();
+            showInfo("Uncollected orders have been picked up and assigned to hubs.");
+        } catch (RuntimeException ex) {
+            showError(ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void onDeliverOrders() {
+        try {
+            dispatcher.deliverOrders();
+            OrderStatusPersistence.syncOrderStatus();
+            refreshOrdersTables();
+            showInfo("Picked up orders have been delivered.");
+        } catch (RuntimeException ex) {
+            showError(ex.getMessage());
+        }
+    }
+
+    @FXML
     private void onCancel() {
         orderBuilder = new OrderBuilder();
         for (TextField field : allFields()) {

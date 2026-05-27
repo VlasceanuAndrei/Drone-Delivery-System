@@ -5,9 +5,11 @@ import andreiv.model.drone.Drone;
 import andreiv.model.drone.HighSpeedDrone;
 import andreiv.model.hub.DroneHub;
 import andreiv.model.order.Address;
+import andreiv.model.order.Order;
 import andreiv.model.personnel.Personnel;
 import andreiv.persistence.repository.DroneHubRepository;
 import andreiv.persistence.repository.DroneRepository;
+import andreiv.persistence.repository.OrderRepository;
 import andreiv.persistence.repository.PersonnelRepository;
 import andreiv.service.OrderDispatcher;
 import javafx.beans.property.SimpleStringProperty;
@@ -23,6 +25,7 @@ public class HubsViewController {
     private final DroneHubRepository hubRepository = new DroneHubRepository();
     private final DroneRepository droneRepository = new DroneRepository();
     private final PersonnelRepository personnelRepository = new PersonnelRepository();
+    private final OrderRepository orderRepository = new OrderRepository();
     private final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
 
     @FXML private TextField hubNameField;
@@ -33,6 +36,7 @@ public class HubsViewController {
     @FXML private ComboBox<DroneHub> hubSelectorCombo;
     @FXML private TableView<Drone> dronesTable;
     @FXML private TableView<Personnel> personnelTable;
+    @FXML private TableView<Order> hubOrdersTable;
     @FXML private Button navHubs;
     @FXML private Button navFleet;
     @FXML private Button navOrders;
@@ -104,6 +108,7 @@ public class HubsViewController {
     private void setupTables() {
         bindDroneTableColumns(dronesTable);
         bindPersonnelTableColumns(personnelTable);
+        bindOrderTableColumns(hubOrdersTable);
     }
 
     private void refreshHubList() {
@@ -123,11 +128,13 @@ public class HubsViewController {
         if (selected == null) {
             dronesTable.setItems(FXCollections.observableArrayList());
             personnelTable.setItems(FXCollections.observableArrayList());
+            hubOrdersTable.setItems(FXCollections.observableArrayList());
             return;
         }
 
         dronesTable.setItems(FXCollections.observableArrayList(droneRepository.findByHubId(selected.getId())));
         personnelTable.setItems(FXCollections.observableArrayList(personnelRepository.findByHubId(selected.getId())));
+        hubOrdersTable.setItems(FXCollections.observableArrayList(orderRepository.findByHubId(selected.getId())));
     }
 
     private boolean hubFormValid() {
@@ -170,6 +177,28 @@ public class HubsViewController {
             }
         }
         table.setPlaceholder(new Label("No content in table"));
+    }
+
+    @SuppressWarnings("unchecked")
+    private void bindOrderTableColumns(TableView<Order> table) {
+        for (TableColumn<Order, ?> column : table.getColumns()) {
+            TableColumn<Order, String> col = (TableColumn<Order, String>) column;
+            switch (col.getText()) {
+                case "ORDER ID" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(formatOrderId(data.getValue())));
+                case "SENDER" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(data.getValue().getSender().getName()));
+                case "RECIPIENT" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(data.getValue().getReceiver().getName()));
+                default -> { }
+            }
+        }
+        table.setPlaceholder(new Label("No content in table"));
+    }
+
+    private static String formatOrderId(Order order) {
+        String id = order.getId().toString();
+        return id.length() > 8 ? id.substring(0, 8) : id;
     }
 
     private static StringConverter<DroneHub> hubLabelConverter() {

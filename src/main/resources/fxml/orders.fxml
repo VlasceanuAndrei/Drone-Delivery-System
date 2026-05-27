@@ -63,7 +63,7 @@
                               <Label fx:id="step5Label" text="5" />
                            </children>
                         </HBox>
-                        <StackPane VBox.vgrow="ALWAYS">
+                        <StackPane>
                            <children>
                               <VBox fx:id="senderContactPane">
                                  <children>
@@ -143,6 +143,10 @@
                               <Button fx:id="btnNext" mnemonicParsing="false" onAction="#onNext" styleClass="button-primary" text="Next step" />
                            </children>
                         </HBox>
+                        <Label text="" />
+                        <Label text="" />
+                        <Button mnemonicParsing="false" onAction="#onPickUpOrders" maxWidth="Infinity" styleClass="button-secondary" text="Pick up uncollected orders" />
+                        <Button mnemonicParsing="false" onAction="#onDeliverOrders" maxWidth="Infinity" styleClass="button-primary" text="Deliver picked up orders" />
                      </children>
                   </VBox>
                   <VBox styleClass="card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
