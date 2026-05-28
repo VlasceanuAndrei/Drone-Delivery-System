@@ -43,3 +43,5 @@ build/
 ### Cursor (project-local) ###
 .cursor/
 .cursor/**
+
+audit.csv

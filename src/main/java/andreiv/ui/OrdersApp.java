@@ -1,8 +1,7 @@
 package andreiv.ui;
 
-import andreiv.model.hub.DroneHub;
-import andreiv.persistence.repository.DroneHubRepository;
 import andreiv.service.OrderDispatcher;
+import andreiv.service.SampleDataManager;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -15,11 +14,12 @@ import java.util.Objects;
 public class OrdersApp extends Application {
 
     private static Stage primaryStage;
+    private static final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
 
     @Override
     public void start(Stage stage) throws IOException {
         primaryStage = stage;
-        syncHubsFromDatabase();
+        SampleDataManager.loadSampleData(dispatcher);
         showOrders();
         stage.setTitle("Drone Delivery System");
         stage.setMinWidth(1024);
@@ -56,18 +56,6 @@ public class OrdersApp extends Application {
             primaryStage.setScene(new Scene(root, 1280, 720));
         } catch (IOException e) {
             throw new RuntimeException("Failed to load " + resource + ": " + e.getMessage(), e);
-        }
-    }
-
-    private static void syncHubsFromDatabase() {
-        DroneHubRepository hubRepository = new DroneHubRepository();
-        OrderDispatcher dispatcher = OrderDispatcher.getInstance();
-        for (DroneHub hub : hubRepository.findAll()) {
-            boolean alreadyLoaded = dispatcher.getHubs().stream()
-                    .anyMatch(existing -> existing.getId().equals(hub.getId()));
-            if (!alreadyLoaded) {
-                dispatcher.addHub(hub);
-            }
         }
     }
 

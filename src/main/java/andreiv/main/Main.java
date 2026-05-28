@@ -19,7 +19,7 @@ public class Main {
     private static final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
     private static final Scanner scanner = new Scanner(System.in);
     private static final HashMap<Integer, DroneHub> hubList = new HashMap<>();
-    private static final AtomicInteger hubId = new AtomicInteger(1);
+    private static final AtomicInteger hubId = new AtomicInteger(0);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
     private static final AddressRepository addressRepository = new AddressRepository();
     private static final ContactRepository contactRepository = new ContactRepository();
@@ -35,7 +35,14 @@ public class Main {
             initialDbSeed();
         }
 
-        loadSampleData();
+        SampleDataManager.loadSampleData(dispatcher);
+        int idValue = 0;
+        for (DroneHub hub : dispatcher.getHubs()) {
+            hubList.put(idValue, hub);
+            idValue++;
+        }
+
+        hubId.set(idValue);
 
         while (true) {
             displayMenu();
@@ -641,8 +648,11 @@ public class Main {
 
     private static int promptHubId(final String prompt) {
         int hubIdInput;
-        int maxCurrentHubId = hubId.get() - 1;
-        System.out.print(prompt + " (1..." + maxCurrentHubId + "): ");
+        if (hubList.isEmpty()) {
+            throw new IllegalStateException("No hubs available.");
+        }
+        int maxCurrentHubId = Collections.max(hubList.keySet());
+        System.out.print(prompt + " (0..." + maxCurrentHubId + "): ");
         hubIdInput = scanner.nextInt();
         scanner.nextLine();
 
@@ -655,23 +665,6 @@ public class Main {
     private static DroneHub promptHub(final String prompt) {
         int hubIdInput = promptHubId(prompt);
         return hubList.get(hubIdInput);
-    }
-
-    private static void loadSampleData() {
-        List<DroneHub> hubs = droneHubRepository.findAll();
-        for (DroneHub hub : hubs) {
-            for (Drone drone : droneRepository.findByHubId(hub.getId())) {
-                hub.addDrone(drone);
-            }
-            int id = hubId.getAndIncrement();
-            hubList.put(id, hub);
-            dispatcher.addHub(hub);
-        }
-
-        List<Order> uncollectedOrders = orderRepository.getUncollectedOrders();
-        for (Order order : uncollectedOrders) {
-            dispatcher.addUncollectedOrder(order);
-        }
     }
 
     private static void initialDbSeed() {
@@ -702,6 +695,16 @@ public class Main {
         Drone d4 = new CargoDrone("Stratus-B4", 550, 410.0, 38.0, true, false);
         droneRepository.save(d4);
         droneRepository.updateHubId(d4, hub1.getId());
+
+        Address hub3Address = new Address("France", "Nice", "Promenade des Anglais", "45");
+        addressRepository.save(hub3Address);
+
+        DroneHub hub3 = new DroneHub("Nice Promenade Hub", hub3Address);
+        droneHubRepository.save(hub3);
+
+        Drone d5 = new HighSpeedDrone("Swift-H2", 480, 100.0, 150.0, true);
+        droneRepository.save(d5);
+        droneRepository.updateHubId(d5, hub3.getId());
 
         Personnel p1 = new Personnel("Sorin Patrascu", "MECHANIC");
         personnelRepository.save(p1);
@@ -738,6 +741,20 @@ public class Main {
 
         Order order2 = new Order(sender2, receiver2, pkg2);
         orderRepository.save(order2);
+
+        Contact sender3 = new Contact("Côte Lumière", new Address("France", "Nice", "Rue de France", "88"),
+                "cote.lumiere@test.com", "+33644444444", "", false);
+        contactRepository.save(sender3);
+
+        Contact receiver3 = new Contact("Le Belvédère", new Address("France", "Marseille", "Rue Sainte", "3"),
+                "le.belvedere@test.com", "+33655555555", "", false);
+        contactRepository.save(receiver3);
+
+        Package pkg3 = new Package(3.0, 15.0, 25.0, 10.0, new String[]{"EXPRESS_DELIVERY"});
+        packageRepository.save(pkg3);
+
+        Order order3 = new Order(sender3, receiver3, pkg3);
+        orderRepository.save(order3);
     }
     private static void handleExit() {
         System.out.println("Exiting the application...");
