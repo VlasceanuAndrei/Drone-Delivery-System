@@ -8,6 +8,14 @@ import java.util.*;
 import java.sql.*;
 
 public final class DroneHubRepository implements BaseRepository<DroneHub> {
+    private static final DroneHubRepository instance = new DroneHubRepository();
+
+    private DroneHubRepository() {}
+
+    public static DroneHubRepository getInstance() {
+        return instance;
+    }
+
     @Override
     public Optional<DroneHub> findById(UUID id) {
         final String sql = """

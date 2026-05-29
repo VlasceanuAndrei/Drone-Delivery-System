@@ -17,8 +17,8 @@ import java.util.Optional;
 
 public class FleetViewController {
 
-    private final DroneHubRepository hubRepository = new DroneHubRepository();
-    private final DroneRepository droneRepository = new DroneRepository();
+    private final DroneHubRepository hubRepository = DroneHubRepository.getInstance();
+    private final DroneRepository droneRepository = DroneRepository.getInstance();
     private final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
 
     @FXML private ComboBox<DroneHub> hubSelectorCombo;

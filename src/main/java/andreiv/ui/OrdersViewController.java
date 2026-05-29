@@ -22,10 +22,10 @@ public class OrdersViewController {
 
     private static final int LAST_STEP = 5;
 
-    private final AddressRepository addressRepository = new AddressRepository();
-    private final ContactRepository contactRepository = new ContactRepository();
-    private final PackageRepository packageRepository = new PackageRepository();
-    private final OrderRepository orderRepository = new OrderRepository();
+    private final AddressRepository addressRepository = AddressRepository.getInstance();
+    private final ContactRepository contactRepository = ContactRepository.getInstance();
+    private final PackageRepository packageRepository = PackageRepository.getInstance();
+    private final OrderRepository orderRepository = OrderRepository.getInstance();
     private final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
 
     private OrderBuilder orderBuilder = new OrderBuilder();

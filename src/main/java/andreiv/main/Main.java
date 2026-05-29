@@ -21,13 +21,13 @@ public class Main {
     private static final HashMap<Integer, DroneHub> hubList = new HashMap<>();
     private static final AtomicInteger hubId = new AtomicInteger(0);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
-    private static final AddressRepository addressRepository = new AddressRepository();
-    private static final ContactRepository contactRepository = new ContactRepository();
-    private static final DroneHubRepository droneHubRepository = new DroneHubRepository();
-    private static final DroneRepository droneRepository = new DroneRepository();
-    private static final OrderRepository orderRepository = new OrderRepository();
-    private static final PackageRepository packageRepository = new PackageRepository();
-    private static final PersonnelRepository personnelRepository = new PersonnelRepository();
+    private static final AddressRepository addressRepository = AddressRepository.getInstance();
+    private static final ContactRepository contactRepository = ContactRepository.getInstance();
+    private static final DroneHubRepository droneHubRepository = DroneHubRepository.getInstance();
+    private static final DroneRepository droneRepository = DroneRepository.getInstance();
+    private static final OrderRepository orderRepository = OrderRepository.getInstance();
+    private static final PackageRepository packageRepository = PackageRepository.getInstance();
+    private static final PersonnelRepository personnelRepository = PersonnelRepository.getInstance();
 
     public static void main(String[] args) {
 
@@ -756,6 +756,7 @@ public class Main {
         Order order3 = new Order(sender3, receiver3, pkg3);
         orderRepository.save(order3);
     }
+
     private static void handleExit() {
         System.out.println("Exiting the application...");
         System.exit(0);

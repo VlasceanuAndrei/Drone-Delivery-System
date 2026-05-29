@@ -6,8 +6,8 @@ import andreiv.model.hub.*;
 import andreiv.persistence.repository.*;
 
 public class OrderStatusPersistence {
-    final static OrderDispatcher dispatcher = OrderDispatcher.getInstance();
-    final static OrderRepository orderRepository = new OrderRepository();
+    private static final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
+    private static final OrderRepository orderRepository = OrderRepository.getInstance();
 
     public static void syncOrderStatus() {
         for (Order order : dispatcher.getUncollectedOrders()) {

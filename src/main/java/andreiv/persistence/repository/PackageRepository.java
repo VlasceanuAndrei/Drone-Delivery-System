@@ -8,6 +8,14 @@ import java.util.*;
 import java.sql.*;
 
 public final class PackageRepository implements BaseRepository<Package> {
+    private static final PackageRepository instance = new PackageRepository();
+
+    private PackageRepository() {}
+
+    public static PackageRepository getInstance() {
+        return instance;
+    }
+
     @Override
     public Optional<Package> findById(UUID id) {
         final String sql = """

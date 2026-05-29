@@ -7,6 +7,14 @@ import java.util.*;
 import java.sql.*;
 
 public final class PersonnelRepository implements BaseRepository<Personnel> {
+    private static final PersonnelRepository instance = new PersonnelRepository();
+
+    private PersonnelRepository() {}
+
+    public static PersonnelRepository getInstance() {
+        return instance;
+    }
+
     @Override
     public Optional<Personnel> findById(UUID id) {
         final String sql = """

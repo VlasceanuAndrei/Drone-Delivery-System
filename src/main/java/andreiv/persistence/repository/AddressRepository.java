@@ -7,6 +7,13 @@ import java.util.*;
 import java.sql.*;
 
 public final class AddressRepository implements BaseRepository<Address>{
+    private static final AddressRepository instance = new AddressRepository();
+
+    private AddressRepository() {}
+
+    public static AddressRepository getInstance() {
+        return instance;
+    }
 
     @Override
     public Optional<Address> findById(UUID id) {

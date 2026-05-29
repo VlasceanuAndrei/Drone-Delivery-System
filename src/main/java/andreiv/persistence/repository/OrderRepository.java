@@ -9,8 +9,15 @@ import java.util.*;
 import java.sql.*;
 
 public final class OrderRepository implements BaseRepository<Order> {
-    private final ContactRepository contactRepository = new ContactRepository();
-    private final PackageRepository packageRepository = new PackageRepository();
+    private static final OrderRepository instance = new OrderRepository();
+    private static final ContactRepository contactRepository = ContactRepository.getInstance();
+    private static final PackageRepository packageRepository = PackageRepository.getInstance();
+
+    private OrderRepository() {}
+
+    public static OrderRepository getInstance() {
+        return instance;
+    }
 
     @Override
     public Optional<Order> findById(UUID id) {

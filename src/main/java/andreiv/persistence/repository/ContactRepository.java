@@ -8,6 +8,14 @@ import java.util.*;
 import java.sql.*;
 
 public final class ContactRepository implements BaseRepository<Contact> {
+    private static final ContactRepository instance = new ContactRepository();
+
+    private ContactRepository() {}
+
+    public static ContactRepository getInstance() {
+        return instance;
+    }
+
     @Override
     public Optional<Contact> findById(UUID id) {
         final String sql = """

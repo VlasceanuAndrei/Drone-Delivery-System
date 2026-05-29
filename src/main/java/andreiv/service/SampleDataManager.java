@@ -7,10 +7,10 @@ import andreiv.model.order.Order;
 import andreiv.persistence.repository.*;
 
 public final class SampleDataManager {
-    private static final DroneHubRepository droneHubRepository = new DroneHubRepository();
-    private static final DroneRepository droneRepository = new DroneRepository();
-    private static final PersonnelRepository personnelRepository = new PersonnelRepository();
-    private static final OrderRepository orderRepository = new OrderRepository();
+    private static final DroneHubRepository droneHubRepository = DroneHubRepository.getInstance();
+    private static final DroneRepository droneRepository = DroneRepository.getInstance();
+    private static final PersonnelRepository personnelRepository = PersonnelRepository.getInstance();
+    private static final OrderRepository orderRepository = OrderRepository.getInstance();
 
     public static void loadSampleData(OrderDispatcher dispatcher) {
         for (DroneHub hub : droneHubRepository.findAll()) {

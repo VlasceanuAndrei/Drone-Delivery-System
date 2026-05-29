@@ -9,7 +9,7 @@ import static andreiv.service.HubGridIndex.*;
 import andreiv.exception.CoordinatesNotFoundException;
 
 public class OrderDispatcher {
-    private static OrderDispatcher instance;
+    private static final OrderDispatcher instance = new OrderDispatcher();
 
     private final Set<DroneHub> hubs;
     private final Set<Order> uncollectedOrders;
@@ -25,9 +25,6 @@ public class OrderDispatcher {
     }
 
     public static OrderDispatcher getInstance() {
-        if (instance == null) {
-            instance = new OrderDispatcher();
-        }
         return instance;
     }
 

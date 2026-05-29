@@ -22,10 +22,10 @@ import java.util.List;
 
 public class HubsViewController {
 
-    private final DroneHubRepository hubRepository = new DroneHubRepository();
-    private final DroneRepository droneRepository = new DroneRepository();
-    private final PersonnelRepository personnelRepository = new PersonnelRepository();
-    private final OrderRepository orderRepository = new OrderRepository();
+    private final DroneHubRepository hubRepository = DroneHubRepository.getInstance();
+    private final DroneRepository droneRepository = DroneRepository.getInstance();
+    private final PersonnelRepository personnelRepository = PersonnelRepository.getInstance();
+    private final OrderRepository orderRepository = OrderRepository.getInstance();
     private final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
 
     @FXML private TextField hubNameField;

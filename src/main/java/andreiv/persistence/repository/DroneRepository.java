@@ -10,6 +10,14 @@ import java.sql.Date;
 import java.time.*;
 
 public final class DroneRepository implements BaseRepository<Drone> {
+    private static final DroneRepository instance = new DroneRepository();
+
+    private DroneRepository() {}
+
+    public static DroneRepository getInstance() {
+        return instance;
+    }
+
     @Override
     public Optional<Drone> findById(UUID id) {
         final String sql = """
