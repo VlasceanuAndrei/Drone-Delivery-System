@@ -269,6 +269,10 @@ public class Main {
 
         DroneHub destinationHub = promptHub("Enter the ID of the destination hub");
 
+        if (sourceHub.equals(destinationHub)) {
+            throw new IllegalArgumentException("Source hub can't match the destination hub.");
+        }
+
         sourceHub.displayFleet();
 
         List<Drone> fleet = sourceHub.getFleet();
@@ -306,7 +310,7 @@ public class Main {
         } else {
             int orderCounter = 1;
             for (Order order : orders) {
-                System.out.println(orderCounter + "# Order from " + order.getSender().getName() + " (sender address: " +
+                System.out.println("#" + orderCounter + " Order from " + order.getSender().getName() + " (sender address: " +
                         order.getSender().getAddress().getCity() + ", " + order.getSender().getAddress().getCountry() + ") to " +
                         order.getReceiver().getName() + " (destination address: " + order.getReceiver().getAddress().getCity() + ", " +
                         order.getReceiver().getAddress().getCountry() + ")");
@@ -391,7 +395,7 @@ public class Main {
         } else {
             int personnelCounter = 1;
             for (Personnel member : crew) {
-                System.out.println(personnelCounter + "# " + member.getFullName() + " - certification: " + member.getCertification() +
+                System.out.println("#" + personnelCounter + " " + member.getFullName() + " - certification: " + member.getCertification() +
                         " - availability: " + (member.isAvailable() ? "" : " not") + " available");
                 personnelCounter++;
             }
@@ -408,15 +412,15 @@ public class Main {
             int droneCounter = 1;
             for (Drone drone : availableDrones) {
                 switch (drone) {
-                    case CargoDrone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                    case CargoDrone d -> System.out.println("#" + droneCounter + " " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
                             d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? " available" : "not available") +
                             " - last maintenance: " + d.getLastMaintenance() + (d.isRefrigerated() ? "" : " not") + " refrigerated");
 
-                    case HighSpeedDrone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                    case HighSpeedDrone d -> System.out.println("#" + droneCounter + " " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
                             d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? " available" : "not available") +
                             " - last maintenance: " + d.getLastMaintenance() + " - can handle express deliveries");
 
-                    case Drone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                    case Drone d -> System.out.println("#" + droneCounter + " " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
                             d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? "" : " not") +
                             " available - last maintenance: " + d.getLastMaintenance());
                 }
@@ -432,7 +436,7 @@ public class Main {
         } else {
             int orderCounter = 1;
             for (Order order : uncollectedOrders) {
-                System.out.println(orderCounter + "# Order (ID: " + order.getId() + ") from " + order.getSender().getName() + " (sender address: " +
+                System.out.println("#" + orderCounter + " Order (ID: " + order.getId() + ") from " + order.getSender().getName() + " (sender address: " +
                         order.getSender().getAddress().getCity() + ", " + order.getSender().getAddress().getCountry() + ") to " +
                         order.getReceiver().getName() + " (destination address: " + order.getReceiver().getAddress().getCity() + ", " +
                         order.getReceiver().getAddress().getCountry() + ")");
@@ -450,7 +454,7 @@ public class Main {
             for (Order order : deliveredOrders) {
                 String route = order.getSender().getAddress().getCity() + ", " + order.getSender().getAddress().getCountry() + " -> " +
                         order.getReceiver().getAddress().getCity() + ", " + order.getReceiver().getAddress().getCountry();
-                System.out.println(orderCounter + "# Delivered Order (ID: " + order.getId() + ") - route: " + route);
+                System.out.println("#" + orderCounter + " Delivered Order (ID: " + order.getId() + ") - route: " + route);
                 orderCounter++;
             }
         }
@@ -510,7 +514,7 @@ public class Main {
             for (Integer hubIdKey : currentHubs) {
                 DroneHub hub = hubList.get(hubIdKey);
                 if (hub == null) continue;
-                System.out.println(counter + "# " + hub.getName() + " (ID: " + hubIdKey + ") - city: " + hub.getAddress().getCity() +
+                System.out.println("#" + counter + " " + hub.getName() + " (ID: " + hubIdKey + ") - city: " + hub.getAddress().getCity() +
                         ", " + hub.getAddress().getCountry() + " - distance: " +
                         String.format(Locale.ENGLISH, "%.2f", distance) + "km");
                 counter++;

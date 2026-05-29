@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane minHeight="600.0" minWidth="1024.0" prefHeight="720.0" prefWidth="1280.0" stylesheets="@../css/app.css" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="andreiv.ui.PersonnelViewController">
+   <left>
+      <VBox minWidth="200.0" prefWidth="220.0" styleClass="sidebar" BorderPane.alignment="CENTER">
+         <children>
+            <VBox>
+               <children>
+                  <Label styleClass="brand-title" text="Drone Delivery System" />
+                  <Label styleClass="brand-subtitle" text="You send, we deliver" />
+               </children>
+            </VBox>
+            <Button fx:id="navHubs" mnemonicParsing="false" onAction="#goHubs" text="Hubs" />
+            <Button fx:id="navFleet" mnemonicParsing="false" onAction="#goFleet" text="Fleet" />
+            <Button fx:id="navOrders" mnemonicParsing="false" onAction="#goOrders" text="Orders" />
+            <Button fx:id="navPersonnel" mnemonicParsing="false" onAction="#goPersonnel" styleClass="nav-active" text="Personnel" />
+         </children>
+      </VBox>
+   </left>
+   <center>
+      <VBox BorderPane.alignment="CENTER">
+         <children>
+            <HBox styleClass="page-header">
+               <children>
+                  <Label styleClass="page-title" text="Personnel" />
+               </children>
+            </HBox>
+            <VBox styleClass="card" VBox.vgrow="ALWAYS">
+               <children>
+                  <Label styleClass="card-title" text="Add personnel member" />
+                  <Label styleClass="field-label" text="FULL NAME" />
+                  <TextField fx:id="fullNameField" maxWidth="Infinity" promptText="Full name..." />
+                  <Label styleClass="field-label" text="CERTIFICATION" />
+                  <ComboBox fx:id="certificationCombo" maxWidth="Infinity" styleClass="hub-selector" />
+                  <CheckBox fx:id="availableCheck" mnemonicParsing="false" selected="true" text="Personnel is available" />
+                  <Label styleClass="section-label" text="Hub Assignment" />
+                  <Label styleClass="field-label" text="ASSIGN TO HUB" />
+                  <ComboBox fx:id="hubSelectorCombo" maxWidth="Infinity" promptText="Select a hub..." styleClass="hub-selector" />
+                  <HBox>
+                     <children>
+                        <Button mnemonicParsing="false" onAction="#onClear" styleClass="button-secondary" text="Clear" />
+                        <Button mnemonicParsing="false" onAction="#onAddPersonnel" styleClass="button-primary" text="Add personnel" />
+                     </children>
+                  </HBox>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

@@ -185,15 +185,15 @@ public class DroneHub {
         int droneCounter = 1;
         for (Drone drone : fleet) {
             switch (drone) {
-                case CargoDrone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                case CargoDrone d -> System.out.println("#" + droneCounter + " " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
                         d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? " available" : "not available") +
                         " - last maintenance: " + d.getLastMaintenance() + (d.isRefrigerated() ? "" : " not") + " refrigerated");
 
-                case HighSpeedDrone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                case HighSpeedDrone d -> System.out.println("#" + droneCounter + " " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
                         d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? " available" : "not available") +
                         " - last maintenance: " + d.getLastMaintenance() + " - can handle express deliveries");
 
-                case Drone d -> System.out.println(droneCounter + "# " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
+                case Drone d -> System.out.println("#" + droneCounter + " " + drone.getName() + " - range: " + d.getFlightRange() + " - max payload: " +
                         d.getMaximumPayload() + " - max speed: " + d.getMaximumSpeed() + " - availability: " + (d.isAvailable() ? "" : " not") +
                         " available - last maintenance: " + d.getLastMaintenance());
             }

@@ -34,16 +34,19 @@ public class HubsViewController {
     @FXML private TextField hubStreetField;
     @FXML private TextField hubNumberField;
     @FXML private ComboBox<DroneHub> hubSelectorCombo;
+    @FXML private ComboBox<DroneHub> maintenanceHubCombo;
+    @FXML private CheckBox availableOnlyCheck;
     @FXML private TableView<Drone> dronesTable;
     @FXML private TableView<Personnel> personnelTable;
     @FXML private TableView<Order> hubOrdersTable;
     @FXML private Button navHubs;
     @FXML private Button navFleet;
     @FXML private Button navOrders;
+    @FXML private Button navPersonnel;
 
     @FXML
     private void initialize() {
-        OrdersApp.setActiveNav(navHubs, navHubs, navFleet, navOrders);
+        OrdersApp.setActiveNav(navHubs, navHubs, navFleet, navOrders, navPersonnel);
         setupHubSelector();
         setupTables();
         refreshHubList();
@@ -62,6 +65,11 @@ public class HubsViewController {
     @FXML
     private void goOrders() {
         OrdersApp.showOrders();
+    }
+
+    @FXML
+    private void goPersonnel() {
+        OrdersApp.showPersonnel();
     }
 
     @FXML
@@ -100,20 +108,41 @@ public class HubsViewController {
         hubNumberField.clear();
     }
 
+    @FXML
+    private void onPerformMaintenance() {
+        DroneHub hub = maintenanceHubCombo.getValue();
+        if (hub == null) {
+            showError("Please select a hub to perform maintenance on.");
+            return;
+        }
+
+        try {
+            hub.checkFleetMaintenance();
+            hub.performMaintenance();
+            maintenanceHubCombo.setValue(null);
+            showInfo("Maintenance performed successfully for " + hub.getName() + ".");
+        } catch (RuntimeException ex) {
+            showError(ex.getMessage());
+        }
+    }
+
     private void setupHubSelector() {
         hubSelectorCombo.setConverter(hubLabelConverter());
         hubSelectorCombo.valueProperty().addListener((obs, oldHub, selectedHub) -> refreshHubDetails());
+        maintenanceHubCombo.setConverter(hubLabelConverter());
     }
 
     private void setupTables() {
         bindDroneTableColumns(dronesTable);
         bindPersonnelTableColumns(personnelTable);
         bindOrderTableColumns(hubOrdersTable);
+        availableOnlyCheck.selectedProperty().addListener((obs, oldVal, newVal) -> refreshHubDetails());
     }
 
     private void refreshHubList() {
         List<DroneHub> hubs = hubRepository.findAll();
         hubSelectorCombo.setItems(FXCollections.observableArrayList(hubs));
+        maintenanceHubCombo.setItems(FXCollections.observableArrayList(hubs));
 
         DroneHub selected = hubSelectorCombo.getValue();
         if (selected != null && hubs.stream().noneMatch(h -> h.getId().equals(selected.getId()))) {
@@ -132,7 +161,11 @@ public class HubsViewController {
             return;
         }
 
-        dronesTable.setItems(FXCollections.observableArrayList(droneRepository.findByHubId(selected.getId())));
+        List<Drone> drones = droneRepository.findByHubId(selected.getId());
+        if (availableOnlyCheck.isSelected()) {
+            drones = drones.stream().filter(Drone::isAvailable).collect(java.util.stream.Collectors.toList());
+        }
+        dronesTable.setItems(FXCollections.observableArrayList(drones));
         personnelTable.setItems(FXCollections.observableArrayList(personnelRepository.findByHubId(selected.getId())));
         hubOrdersTable.setItems(FXCollections.observableArrayList(orderRepository.findByHubId(selected.getId())));
     }
@@ -208,7 +241,7 @@ public class HubsViewController {
                 if (hub == null) {
                     return "";
                 }
-                return hub.getName() + " — " + hub.getAddress().getCity();
+                return hub.getName() + " - " + hub.getAddress().getCity();
             }
 
             @Override

@@ -39,11 +39,17 @@ public class OrdersApp extends Application {
         loadPage("orders.fxml");
     }
 
+    public static void showPersonnel() {
+        loadPage("personnel.fxml");
+    }
+
     static void setActiveNav(javafx.scene.control.Button active, javafx.scene.control.Button navHubs,
-                            javafx.scene.control.Button navFleet, javafx.scene.control.Button navOrders) {
+                            javafx.scene.control.Button navFleet, javafx.scene.control.Button navOrders,
+                            javafx.scene.control.Button navPersonnel) {
         navHubs.getStyleClass().remove("nav-active");
         navFleet.getStyleClass().remove("nav-active");
         navOrders.getStyleClass().remove("nav-active");
+        navPersonnel.getStyleClass().remove("nav-active");
         active.getStyleClass().add("nav-active");
     }
 

@@ -31,6 +31,7 @@
             <Button fx:id="navHubs" mnemonicParsing="false" onAction="#goHubs" text="Hubs" />
             <Button fx:id="navFleet" mnemonicParsing="false" onAction="#goFleet" text="Fleet" />
             <Button fx:id="navOrders" mnemonicParsing="false" onAction="#goOrders" styleClass="nav-active" text="Orders" />
+            <Button fx:id="navPersonnel" mnemonicParsing="false" onAction="#goPersonnel" text="Personnel" />
          </children>
       </VBox>
    </left>

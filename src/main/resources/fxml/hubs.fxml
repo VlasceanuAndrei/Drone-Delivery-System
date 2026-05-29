@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tab?>
@@ -29,6 +30,7 @@
             <Button fx:id="navHubs" mnemonicParsing="false" onAction="#goHubs" styleClass="nav-active" text="Hubs" />
             <Button fx:id="navFleet" mnemonicParsing="false" onAction="#goFleet" text="Fleet" />
             <Button fx:id="navOrders" mnemonicParsing="false" onAction="#goOrders" text="Orders" />
+            <Button fx:id="navPersonnel" mnemonicParsing="false" onAction="#goPersonnel" text="Personnel" />
          </children>
       </VBox>
    </left>
@@ -69,6 +71,10 @@
                               <Button fx:id="btnCreateHub" mnemonicParsing="false" onAction="#onCreateHub" styleClass="button-primary" text="Create hub" />
                            </children>
                         </HBox>
+                        <Label styleClass="section-label" text="Drone Maintenance" />
+                        <Label styleClass="field-label" text="SELECT HUB" />
+                        <ComboBox fx:id="maintenanceHubCombo" maxWidth="Infinity" promptText="Select a hub..." styleClass="hub-selector" />
+                        <Button mnemonicParsing="false" onAction="#onPerformMaintenance" maxWidth="Infinity" styleClass="button-primary" text="Perform maintenance" />
                      </children>
                   </VBox>
                   <VBox styleClass="card" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
@@ -80,17 +86,22 @@
                           <tabs>
                             <Tab text="Drones">
                               <content>
-                                <AnchorPane>
-                                       <children>
-                                          <TableView fx:id="dronesTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                            <columns>
-                                              <TableColumn prefWidth="160.0" text="NAME" />
-                                              <TableColumn prefWidth="120.0" text="TYPE" />
-                                              <TableColumn prefWidth="120.0" text="STATUS" />
-                                            </columns>
-                                          </TableView>
-                                       </children>
+                                <VBox>
+                                  <children>
+                                    <CheckBox fx:id="availableOnlyCheck" mnemonicParsing="false" text="Only show available drones" />
+                                    <AnchorPane VBox.vgrow="ALWAYS">
+                                      <children>
+                                        <TableView fx:id="dronesTable" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                          <columns>
+                                            <TableColumn prefWidth="160.0" text="NAME" />
+                                            <TableColumn prefWidth="120.0" text="TYPE" />
+                                            <TableColumn prefWidth="120.0" text="STATUS" />
+                                          </columns>
+                                        </TableView>
+                                      </children>
                                     </AnchorPane>
+                                  </children>
+                                </VBox>
                               </content>
                             </Tab>
                             <Tab text="Personnel">

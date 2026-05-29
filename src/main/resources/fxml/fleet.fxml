@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
@@ -22,42 +23,68 @@
             <Button fx:id="navHubs" mnemonicParsing="false" onAction="#goHubs" text="Hubs" />
             <Button fx:id="navFleet" mnemonicParsing="false" onAction="#goFleet" styleClass="nav-active" text="Fleet" />
             <Button fx:id="navOrders" mnemonicParsing="false" onAction="#goOrders" text="Orders" />
+            <Button fx:id="navPersonnel" mnemonicParsing="false" onAction="#goPersonnel" text="Personnel" />
          </children>
       </VBox>
    </left>
    <center>
-      <VBox BorderPane.alignment="CENTER">
+      <VBox BorderPane.alignment="CENTER" VBox.vgrow="ALWAYS">
          <children>
             <HBox styleClass="page-header">
                <children>
                   <Label styleClass="page-title" text="Fleet Overview" />
                </children>
             </HBox>
-            <VBox styleClass="card" VBox.vgrow="ALWAYS">
-               <children>
-                  <Label styleClass="card-title" text="Add drone to hub" />
-                  <Label styleClass="field-label" text="SELECT HUB" />
-                  <ComboBox fx:id="hubSelectorCombo" maxWidth="Infinity" promptText="Select a hub..." styleClass="hub-selector" />
-                  <Label styleClass="field-label" text="DRONE NAME" />
-                  <TextField fx:id="droneNameField" maxWidth="Infinity" promptText="Drone name..." />
-                  <Label styleClass="field-label" text="TYPE" />
-                  <ComboBox fx:id="droneTypeCombo" maxWidth="Infinity" styleClass="hub-selector" />
-                  <Label styleClass="field-label" text="FLIGHT RANGE (KM)" />
-                  <TextField fx:id="flightRangeField" maxWidth="Infinity" promptText="0...550" />
-                  <Label styleClass="field-label" text="MAX PAYLOAD (KG)" />
-                  <TextField fx:id="maxPayloadField" maxWidth="Infinity" promptText="Maximum payload..." />
-                  <Label styleClass="field-label" text="MAX SPEED (KM/H)" />
-                  <TextField fx:id="maxSpeedField" maxWidth="Infinity" promptText="Maximum speed..." />
-                  <CheckBox fx:id="availableCheck" mnemonicParsing="false" selected="true" text="Drone is available" />
-                  <CheckBox fx:id="refrigeratedCheck" managed="false" mnemonicParsing="false" text="Can carry refrigerated packages" visible="false" />
-                  <HBox>
+            <ScrollPane fitToWidth="true" hbarPolicy="NEVER" VBox.vgrow="ALWAYS">
+               <content>
+                  <VBox>
                      <children>
-                        <Button mnemonicParsing="false" onAction="#onClear" styleClass="button-secondary" text="Clear" />
-                        <Button mnemonicParsing="false" onAction="#onAddDrone" styleClass="button-primary" text="Add drone" />
+                        <VBox styleClass="card">
+                           <children>
+                              <Label styleClass="card-title" text="Add drone to hub" />
+                              <Label styleClass="field-label" text="SELECT HUB" />
+                              <ComboBox fx:id="hubSelectorCombo" maxWidth="Infinity" promptText="Select a hub..." styleClass="hub-selector" />
+                              <Label styleClass="field-label" text="DRONE NAME" />
+                              <TextField fx:id="droneNameField" maxWidth="Infinity" promptText="Drone name..." />
+                              <Label styleClass="field-label" text="TYPE" />
+                              <ComboBox fx:id="droneTypeCombo" maxWidth="Infinity" styleClass="hub-selector" />
+                              <Label styleClass="field-label" text="FLIGHT RANGE (KM)" />
+                              <TextField fx:id="flightRangeField" maxWidth="Infinity" promptText="0...550" />
+                              <Label styleClass="field-label" text="MAX PAYLOAD (KG)" />
+                              <TextField fx:id="maxPayloadField" maxWidth="Infinity" promptText="Maximum payload..." />
+                              <Label styleClass="field-label" text="MAX SPEED (KM/H)" />
+                              <TextField fx:id="maxSpeedField" maxWidth="Infinity" promptText="Maximum speed..." />
+                              <CheckBox fx:id="availableCheck" mnemonicParsing="false" selected="true" text="Drone is available" />
+                              <CheckBox fx:id="refrigeratedCheck" managed="false" mnemonicParsing="false" text="Can carry refrigerated packages" visible="false" />
+                              <HBox>
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#onClear" styleClass="button-secondary" text="Clear" />
+                                    <Button mnemonicParsing="false" onAction="#onAddDrone" styleClass="button-primary" text="Add drone" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                        <VBox styleClass="card">
+                           <children>
+                              <Label styleClass="card-title" text="Move drone between hubs" />
+                              <Label styleClass="field-label" text="SOURCE HUB" />
+                              <ComboBox fx:id="sourceHubCombo" maxWidth="Infinity" promptText="Select source hub..." styleClass="hub-selector" />
+                              <Label styleClass="field-label" text="DESTINATION HUB" />
+                              <ComboBox fx:id="destinationHubCombo" maxWidth="Infinity" promptText="Select destination hub..." styleClass="hub-selector" />
+                              <Label styleClass="field-label" text="DRONE" />
+                              <ComboBox fx:id="droneCombo" maxWidth="Infinity" promptText="Select a drone..." styleClass="hub-selector" />
+                              <HBox>
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#onClearMove" styleClass="button-secondary" text="Clear" />
+                                    <Button mnemonicParsing="false" onAction="#onMoveDrone" styleClass="button-primary" text="Move drone" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
                      </children>
-                  </HBox>
-               </children>
-            </VBox>
+                  </VBox>
+               </content>
+            </ScrollPane>
          </children>
       </VBox>
    </center>

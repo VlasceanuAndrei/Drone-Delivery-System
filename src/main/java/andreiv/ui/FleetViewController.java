@@ -29,16 +29,21 @@ public class FleetViewController {
     @FXML private TextField maxSpeedField;
     @FXML private CheckBox availableCheck;
     @FXML private CheckBox refrigeratedCheck;
+    @FXML private ComboBox<DroneHub> sourceHubCombo;
+    @FXML private ComboBox<DroneHub> destinationHubCombo;
+    @FXML private ComboBox<Drone> droneCombo;
     @FXML private Button navHubs;
     @FXML private Button navFleet;
     @FXML private Button navOrders;
+    @FXML private Button navPersonnel;
 
     @FXML
     private void initialize() {
-        OrdersApp.setActiveNav(navFleet, navHubs, navFleet, navOrders);
+        OrdersApp.setActiveNav(navFleet, navHubs, navFleet, navOrders, navPersonnel);
         setupHubSelector();
         setupDroneTypeCombo();
         bindRefrigeratedVisibility();
+        setupMoveHubSelectors();
         refreshHubList();
     }
 
@@ -55,6 +60,11 @@ public class FleetViewController {
     @FXML
     private void goOrders() {
         OrdersApp.showOrders();
+    }
+
+    @FXML
+    private void goPersonnel() {
+        OrdersApp.showPersonnel();
     }
 
     @FXML
@@ -106,6 +116,41 @@ public class FleetViewController {
         refrigeratedCheck.setSelected(false);
     }
 
+    @FXML
+    private void onMoveDrone() {
+        DroneHub source = sourceHubCombo.getValue();
+        DroneHub destination = destinationHubCombo.getValue();
+        Drone drone = droneCombo.getValue();
+
+        if (source == null || destination == null || drone == null) {
+            showError("Please select source hub, destination hub, and a drone.");
+            return;
+        }
+        if (source.getId().equals(destination.getId())) {
+            showError("Source hub and destination hub cannot be the same.");
+            return;
+        }
+
+        try {
+            source.removeDrone(drone);
+            destination.addDrone(drone);
+            droneRepository.updateHubId(drone, destination.getId());
+
+            onClearMove();
+            showInfo("Drone moved to " + destination.getName() + ".");
+        } catch (RuntimeException ex) {
+            showError(ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void onClearMove() {
+        sourceHubCombo.setValue(null);
+        destinationHubCombo.setValue(null);
+        droneCombo.setItems(FXCollections.observableArrayList());
+        droneCombo.setValue(null);
+    }
+
     private void setupHubSelector() {
         hubSelectorCombo.setConverter(hubLabelConverter());
     }
@@ -124,8 +169,26 @@ public class FleetViewController {
         refrigeratedCheck.managedProperty().bind(refrigeratedCheck.visibleProperty());
     }
 
+    private void setupMoveHubSelectors() {
+        sourceHubCombo.setConverter(hubLabelConverter());
+        destinationHubCombo.setConverter(hubLabelConverter());
+        droneCombo.setConverter(droneLabelConverter());
+        sourceHubCombo.valueProperty().addListener((obs, oldVal, selected) -> {
+            droneCombo.setValue(null);
+            if (selected == null) {
+                droneCombo.setItems(FXCollections.observableArrayList());
+            } else {
+                droneCombo.setItems(FXCollections.observableArrayList(
+                        droneRepository.findByHubId(selected.getId())));
+            }
+        });
+    }
+
     private void refreshHubList() {
-        hubSelectorCombo.setItems(FXCollections.observableArrayList(hubRepository.findAll()));
+        List<DroneHub> hubs = hubRepository.findAll();
+        hubSelectorCombo.setItems(FXCollections.observableArrayList(hubs));
+        sourceHubCombo.setItems(FXCollections.observableArrayList(hubs));
+        destinationHubCombo.setItems(FXCollections.observableArrayList(hubs));
     }
 
     private boolean formValid() {
@@ -144,11 +207,28 @@ public class FleetViewController {
                 if (hub == null) {
                     return "";
                 }
-                return hub.getName() + " — " + hub.getAddress().getCity();
+                return hub.getName() + " - " + hub.getAddress().getCity();
             }
 
             @Override
             public DroneHub fromString(String label) {
+                return null;
+            }
+        };
+    }
+
+    private static StringConverter<Drone> droneLabelConverter() {
+        return new StringConverter<>() {
+            @Override
+            public String toString(Drone drone) {
+                if (drone == null) {
+                    return "";
+                }
+                return drone.getName() + " - " + drone.getClass().getSimpleName().replace("Drone", "").toLowerCase();
+            }
+
+            @Override
+            public Drone fromString(String label) {
                 return null;
             }
         };
