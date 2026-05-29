@@ -11,6 +11,8 @@ import andreiv.persistence.repository.DroneHubRepository;
 import andreiv.persistence.repository.DroneRepository;
 import andreiv.persistence.repository.OrderRepository;
 import andreiv.persistence.repository.PersonnelRepository;
+import andreiv.service.CityCoordinates;
+import andreiv.service.GeoCalculations;
 import andreiv.service.OrderDispatcher;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -18,6 +20,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.StringConverter;
 
+import java.util.*;
 import java.util.List;
 
 public class HubsViewController {
@@ -36,6 +39,8 @@ public class HubsViewController {
     @FXML private ComboBox<DroneHub> hubSelectorCombo;
     @FXML private ComboBox<DroneHub> maintenanceHubCombo;
     @FXML private CheckBox availableOnlyCheck;
+    @FXML private TextField nearbyCityField;
+    @FXML private TableView<NearbyHubRow> nearbyHubsTable;
     @FXML private TableView<Drone> dronesTable;
     @FXML private TableView<Personnel> personnelTable;
     @FXML private TableView<Order> hubOrdersTable;
@@ -109,21 +114,115 @@ public class HubsViewController {
     }
 
     @FXML
-    private void onPerformMaintenance() {
-        DroneHub hub = maintenanceHubCombo.getValue();
-        if (hub == null) {
-            showError("Please select a hub to perform maintenance on.");
+    private void onCheckMaintenanceStatus() {
+        DroneHub selected = maintenanceHubCombo.getValue();
+        if (selected == null) {
+            showError("Please select a hub to check maintenance status for.");
+            return;
+        }
+
+        DroneHub hubToCheckMaintenance = resolveDispatcherHub(selected);
+        if (hubToCheckMaintenance == null) {
+            showError("Selected hub is not loaded in the dispatcher.");
             return;
         }
 
         try {
-            hub.checkFleetMaintenance();
-            hub.performMaintenance();
-            maintenanceHubCombo.setValue(null);
-            showInfo("Maintenance performed successfully for " + hub.getName() + ".");
+            int before = hubToCheckMaintenance.getFleet().size();
+            hubToCheckMaintenance.checkFleetMaintenance();
+            int after = hubToCheckMaintenance.getFleet().size();
+
+            int movedToMaintenance = before - after;
+            if (movedToMaintenance <= 0) {
+                showInfo("No drones require maintenance at this time.");
+            } else {
+                showInfo(movedToMaintenance + " drones have been moved to maintenance.");
+            }
         } catch (RuntimeException ex) {
             showError(ex.getMessage());
         }
+    }
+
+    @FXML
+    private void onPerformMaintenance() {
+        DroneHub selected = maintenanceHubCombo.getValue();
+        if (selected == null) {
+            showError("Please select a hub to perform maintenance on.");
+            return;
+        }
+
+        DroneHub hubToPerformMaintenance = resolveDispatcherHub(selected);
+        if (hubToPerformMaintenance == null) {
+            showError("Selected hub is not loaded in the dispatcher.");
+            return;
+        }
+
+        try {
+            hubToPerformMaintenance.checkFleetMaintenance();
+            hubToPerformMaintenance.performMaintenance();
+            maintenanceHubCombo.setValue(null);
+            showInfo("Maintenance performed successfully for " + hubToPerformMaintenance.getName() + ".");
+        } catch (RuntimeException ex) {
+            showError(ex.getMessage());
+        }
+    }
+
+    private DroneHub resolveDispatcherHub(DroneHub selected) {
+        return dispatcher.getHubs().stream()
+                .filter(h -> h.getId().equals(selected.getId()))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @FXML
+    private void onSearchNearbyHubs() {
+        String city = text(nearbyCityField);
+        if (city.isEmpty()) {
+            showError("Please enter a city.");
+            return;
+        }
+
+        Optional<List<Double>> cityCoordinates = CityCoordinates.getCoordinates(city);
+        if (cityCoordinates.isEmpty()) {
+            showError("Couldn't provide coordinates for " + city + ".");
+            return;
+        }
+
+        TreeMap<Double, List<DroneHub>> hubsByDistance = new TreeMap<>();
+        for (DroneHub hub : dispatcher.getHubs()) {
+            String hubCity = hub.getAddress().getCity();
+            Optional<List<Double>> hubCoordinates = CityCoordinates.getCoordinates(hubCity);
+            if (hubCoordinates.isEmpty()) {
+                continue;
+            }
+
+            double distance = GeoCalculations.calculateDistance(
+                    cityCoordinates.get().getFirst(), cityCoordinates.get().getLast(),
+                    hubCoordinates.get().getFirst(), hubCoordinates.get().getLast());
+            List<DroneHub> currentHubs = hubsByDistance.getOrDefault(distance, new ArrayList<>());
+            currentHubs.add(hub);
+            hubsByDistance.put(distance, currentHubs);
+        }
+
+        if (hubsByDistance.isEmpty()) {
+            showError("No hubs have valid coordinates for distance calculation.");
+            nearbyHubsTable.setItems(FXCollections.observableArrayList());
+            return;
+        }
+
+        List<NearbyHubRow> rows = new ArrayList<>();
+        for (Double distance : hubsByDistance.keySet()) {
+            for (DroneHub hub : hubsByDistance.get(distance)) {
+                rows.add(new NearbyHubRow(hub, distance));
+            }
+        }
+        nearbyHubsTable.setItems(FXCollections.observableArrayList(rows));
+    }
+
+    @FXML
+    private void onClearNearbySearch() {
+        nearbyCityField.clear();
+        nearbyHubsTable.setItems(FXCollections.observableArrayList());
     }
 
     private void setupHubSelector() {
@@ -136,6 +235,7 @@ public class HubsViewController {
         bindDroneTableColumns(dronesTable);
         bindPersonnelTableColumns(personnelTable);
         bindOrderTableColumns(hubOrdersTable);
+        bindNearbyHubTableColumns(nearbyHubsTable);
         availableOnlyCheck.selectedProperty().addListener((obs, oldVal, newVal) -> refreshHubDetails());
     }
 
@@ -228,6 +328,27 @@ public class HubsViewController {
         }
         table.setPlaceholder(new Label("No content in table"));
     }
+
+    @SuppressWarnings("unchecked")
+    private void bindNearbyHubTableColumns(TableView<NearbyHubRow> table) {
+        for (TableColumn<NearbyHubRow, ?> column : table.getColumns()) {
+            TableColumn<NearbyHubRow, String> col = (TableColumn<NearbyHubRow, String>) column;
+            switch (col.getText()) {
+                case "NAME" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(data.getValue().hub().getName()));
+                case "CITY" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(data.getValue().hub().getAddress().getCity()));
+                case "COUNTRY" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(data.getValue().hub().getAddress().getCountry()));
+                case "DISTANCE (KM)" -> col.setCellValueFactory(data ->
+                        new SimpleStringProperty(String.format(Locale.ENGLISH, "%.2f", data.getValue().distance())));
+                default -> { }
+            }
+        }
+        table.setPlaceholder(new Label("No content in table"));
+    }
+
+    private record NearbyHubRow(DroneHub hub, double distance) { }
 
     private static String formatOrderId(Order order) {
         String id = order.getId().toString();
