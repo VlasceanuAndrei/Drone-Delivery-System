@@ -37,9 +37,4 @@ public final class GeoCalculations {
         double angle = Math.toDegrees(Math.atan2(y, x));
         return (angle + 360) % 360;
     }
-
-    boolean isWithinTolerance(double bearing1, double bearing2, double toleranceThreshold) {
-        double diff = Math.abs(((bearing1 - bearing2 + 540) % 360) - 180);
-        return diff <= toleranceThreshold;
-    }
 }

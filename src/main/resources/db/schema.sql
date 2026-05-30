@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS orders (
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     delivered_at TIMESTAMPTZ NULL,
 
-    CONSTRAINT orders_status_check CHECK (status IN ('UNCOLLECTED', 'IN_HUB', 'ASSIGNED', 'DELIVERED'))
+    CONSTRAINT orders_status_check CHECK (status IN ('UNCOLLECTED', 'IN_HUB', 'DELIVERED'))
 );
 
 CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);

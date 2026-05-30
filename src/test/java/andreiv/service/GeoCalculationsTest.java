@@ -63,20 +63,4 @@ public class GeoCalculationsTest {
         double expected = (angle1 + 180) % 360;
         assertEquals(expected, angle2, 5.0);
     }
-
-    @Test
-    @DisplayName("Should return true when the angle difference is within threshold value.")
-    void testReturnTrueWhenDifferenceIsWithinThreshold() {
-        boolean result = calculations.isWithinTolerance(33.0, 42.0, 15.0);
-
-        assertTrue(result);
-    }
-
-    @Test
-    @DisplayName("Should return false when the angle difference isn't within threshold value.")
-    void testReturnFalseWhenDifferenceExceedsThreshold() {
-        boolean result = calculations.isWithinTolerance(65.0, 32.0, 32.0);
-
-        assertFalse(result);
-    }
 }
