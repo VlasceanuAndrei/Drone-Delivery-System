@@ -1,5 +1,7 @@
 package andreiv.ui;
 
+import andreiv.audit.AuditActions;
+import andreiv.audit.AuditService;
 import andreiv.service.OrderDispatcher;
 import andreiv.service.SampleDataManager;
 import javafx.application.Application;
@@ -24,6 +26,7 @@ public class OrdersApp extends Application {
         stage.setTitle("Drone Delivery System");
         stage.setMinWidth(1024);
         stage.setMinHeight(600);
+        stage.setOnCloseRequest(event -> AuditService.audit(AuditActions.EXIT_APP));
         stage.show();
     }
 

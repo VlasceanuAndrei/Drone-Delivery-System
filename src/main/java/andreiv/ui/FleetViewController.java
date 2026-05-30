@@ -1,21 +1,23 @@
 package andreiv.ui;
 
 import andreiv.model.DroneType;
-import andreiv.model.drone.Drone;
-import andreiv.model.drone.DroneFactory;
+import andreiv.model.drone.*;
 import andreiv.model.hub.DroneHub;
-import andreiv.persistence.repository.DroneHubRepository;
-import andreiv.persistence.repository.DroneRepository;
+import andreiv.persistence.repository.*;
 import andreiv.service.OrderDispatcher;
+import andreiv.audit.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.StringConverter;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class FleetViewController {
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd-MMM-yyyy", Locale.ENGLISH);
 
     private final DroneHubRepository hubRepository = DroneHubRepository.getInstance();
     private final DroneRepository droneRepository = DroneRepository.getInstance();
@@ -28,6 +30,8 @@ public class FleetViewController {
     @FXML private TextField maxPayloadField;
     @FXML private TextField maxSpeedField;
     @FXML private CheckBox availableCheck;
+    @FXML private CheckBox specifyMaintenanceCheck;
+    @FXML private TextField lastMaintenanceField;
     @FXML private CheckBox refrigeratedCheck;
     @FXML private ComboBox<DroneHub> sourceHubCombo;
     @FXML private ComboBox<DroneHub> destinationHubCombo;
@@ -43,6 +47,7 @@ public class FleetViewController {
         setupHubSelector();
         setupDroneTypeCombo();
         bindRefrigeratedVisibility();
+        bindMaintenanceFieldVisibility();
         setupMoveHubSelectors();
         refreshHubList();
     }
@@ -69,6 +74,8 @@ public class FleetViewController {
 
     @FXML
     private void onAddDrone() {
+        AuditService.audit(AuditActions.CREATE_DRONE);
+
         if (!formValid()) {
             showError("Please fill in all fields correctly and select a hub.");
             return;
@@ -86,7 +93,7 @@ public class FleetViewController {
                     parseDouble(maxPayloadField),
                     parseDouble(maxSpeedField),
                     availableCheck.isSelected(),
-                    Optional.empty(),
+                    resolveLastMaintenanceDate(),
                     refrigerated);
 
             droneRepository.save(drone);
@@ -113,11 +120,15 @@ public class FleetViewController {
         maxPayloadField.clear();
         maxSpeedField.clear();
         availableCheck.setSelected(true);
+        specifyMaintenanceCheck.setSelected(false);
+        lastMaintenanceField.clear();
         refrigeratedCheck.setSelected(false);
     }
 
     @FXML
     private void onMoveDrone() {
+        AuditService.audit(AuditActions.MOVE_DRONE);
+
         DroneHub source = sourceHubCombo.getValue();
         DroneHub destination = destinationHubCombo.getValue();
         Drone drone = droneCombo.getValue();
@@ -167,6 +178,18 @@ public class FleetViewController {
                         () -> droneTypeCombo.getValue() == DroneType.CARGO,
                         droneTypeCombo.valueProperty()));
         refrigeratedCheck.managedProperty().bind(refrigeratedCheck.visibleProperty());
+    }
+
+    private void bindMaintenanceFieldVisibility() {
+        lastMaintenanceField.visibleProperty().bind(specifyMaintenanceCheck.selectedProperty());
+        lastMaintenanceField.managedProperty().bind(lastMaintenanceField.visibleProperty());
+    }
+
+    private Optional<LocalDate> resolveLastMaintenanceDate() {
+        if (!specifyMaintenanceCheck.isSelected()) {
+            return Optional.empty();
+        }
+        return Optional.of(LocalDate.parse(text(lastMaintenanceField), DATE_FORMATTER));
     }
 
     private void setupMoveHubSelectors() {

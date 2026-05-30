@@ -3,20 +3,15 @@ package andreiv.ui;
 import andreiv.model.PackageRequirement;
 import andreiv.model.order.*;
 import andreiv.persistence.repository.*;
-import andreiv.service.OrderDispatcher;
-import andreiv.service.OrderStatusPersistence;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
+import andreiv.service.*;
+import andreiv.audit.*;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class OrdersViewController {
 
@@ -114,6 +109,8 @@ public class OrdersViewController {
 
     @FXML
     private void onPickUpOrders() {
+        AuditService.audit(AuditActions.PICKUP_UNCOLLECTED_ORDERS);
+
         try {
             dispatcher.assignUncollectedOrdersToHubs();
             OrderStatusPersistence.syncOrderStatus();
@@ -126,6 +123,8 @@ public class OrdersViewController {
 
     @FXML
     private void onDeliverOrders() {
+        AuditService.audit(AuditActions.DELIVER_ORDERS);
+
         try {
             dispatcher.deliverOrders();
             OrderStatusPersistence.syncOrderStatus();
@@ -149,6 +148,8 @@ public class OrdersViewController {
     }
 
     private void submitOrder() {
+        AuditService.audit(AuditActions.CREATE_ORDER);
+
         try {
             Order order = orderBuilder.build();
             addressRepository.save(orderBuilder.getSenderAddress());
@@ -236,6 +237,8 @@ public class OrdersViewController {
     private void setupOrdersTables() {
         bindOrderTableColumns(ordersTable);
         bindOrderTableColumns(deliveredOrdersTable);
+        AuditService.audit(AuditActions.DISPLAY_UNCOLLECTED_ORDERS);
+        AuditService.audit(AuditActions.DISPLAY_DELIVERED_ORDERS);
         refreshOrdersTables();
     }
 

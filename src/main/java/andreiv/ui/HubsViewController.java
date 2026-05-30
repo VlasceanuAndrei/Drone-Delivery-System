@@ -1,19 +1,12 @@
 package andreiv.ui;
 
-import andreiv.model.drone.CargoDrone;
-import andreiv.model.drone.Drone;
-import andreiv.model.drone.HighSpeedDrone;
+import andreiv.model.drone.*;
 import andreiv.model.hub.DroneHub;
-import andreiv.model.order.Address;
-import andreiv.model.order.Order;
+import andreiv.model.order.*;
 import andreiv.model.personnel.Personnel;
-import andreiv.persistence.repository.DroneHubRepository;
-import andreiv.persistence.repository.DroneRepository;
-import andreiv.persistence.repository.OrderRepository;
-import andreiv.persistence.repository.PersonnelRepository;
-import andreiv.service.CityCoordinates;
-import andreiv.service.GeoCalculations;
-import andreiv.service.OrderDispatcher;
+import andreiv.persistence.repository.*;
+import andreiv.service.*;
+import andreiv.audit.*;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -44,6 +37,7 @@ public class HubsViewController {
     @FXML private TableView<Drone> dronesTable;
     @FXML private TableView<Personnel> personnelTable;
     @FXML private TableView<Order> hubOrdersTable;
+    @FXML private TabPane hubDetailsTabPane;
     @FXML private Button navHubs;
     @FXML private Button navFleet;
     @FXML private Button navOrders;
@@ -79,6 +73,8 @@ public class HubsViewController {
 
     @FXML
     private void onCreateHub() {
+        AuditService.audit(AuditActions.CREATE_DRONE_HUB);
+
         if (!hubFormValid()) {
             showError("Please fill in all hub fields.");
             return;
@@ -115,6 +111,8 @@ public class HubsViewController {
 
     @FXML
     private void onCheckMaintenanceStatus() {
+        AuditService.audit(AuditActions.CHECK_HUB_MAINTENANCE);
+
         DroneHub selected = maintenanceHubCombo.getValue();
         if (selected == null) {
             showError("Please select a hub to check maintenance status for.");
@@ -145,6 +143,8 @@ public class HubsViewController {
 
     @FXML
     private void onPerformMaintenance() {
+        AuditService.audit(AuditActions.PERFORM_HUB_MAINTENANCE);
+
         DroneHub selected = maintenanceHubCombo.getValue();
         if (selected == null) {
             showError("Please select a hub to perform maintenance on.");
@@ -176,6 +176,8 @@ public class HubsViewController {
 
     @FXML
     private void onSearchNearbyHubs() {
+        AuditService.audit(AuditActions.DISPLAY_NEARBY_HUB_FOR_CITY);
+
         String city = text(nearbyCityField);
         if (city.isEmpty()) {
             showError("Please enter a city.");
@@ -227,7 +229,10 @@ public class HubsViewController {
 
     private void setupHubSelector() {
         hubSelectorCombo.setConverter(hubLabelConverter());
-        hubSelectorCombo.valueProperty().addListener((obs, oldHub, selectedHub) -> refreshHubDetails());
+        hubSelectorCombo.valueProperty().addListener((obs, oldHub, selectedHub) -> {
+            refreshHubDetails();
+            auditSelectedHubTab();
+        });
         maintenanceHubCombo.setConverter(hubLabelConverter());
     }
 
@@ -236,7 +241,39 @@ public class HubsViewController {
         bindPersonnelTableColumns(personnelTable);
         bindOrderTableColumns(hubOrdersTable);
         bindNearbyHubTableColumns(nearbyHubsTable);
-        availableOnlyCheck.selectedProperty().addListener((obs, oldVal, newVal) -> refreshHubDetails());
+        hubDetailsTabPane.getSelectionModel().selectedItemProperty().addListener((obs, oldTab, newTab) -> auditSelectedHubTab());
+        availableOnlyCheck.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            refreshHubDetails();
+            if (isDronesTabSelected()) {
+                auditSelectedHubTab();
+            }
+        });
+    }
+
+    private void auditSelectedHubTab() {
+        if (hubSelectorCombo.getValue() == null) {
+            return;
+        }
+
+        Tab selectedTab = hubDetailsTabPane.getSelectionModel().getSelectedItem();
+        if (selectedTab == null) {
+            return;
+        }
+
+        switch (selectedTab.getText()) {
+            case "Drones" -> AuditService.audit(
+                    availableOnlyCheck.isSelected()
+                            ? AuditActions.DISPLAY_AVAILABLE_DRONES_FROM_HUB
+                            : AuditActions.DISPLAY_FLEET_FOR_HUB);
+            case "Personnel" -> AuditService.audit(AuditActions.DISPLAY_HUB_CREW);
+            case "Orders" -> AuditService.audit(AuditActions.DISPLAY_ORDERS_FOR_HUB);
+            default -> { }
+        }
+    }
+
+    private boolean isDronesTabSelected() {
+        Tab selectedTab = hubDetailsTabPane.getSelectionModel().getSelectedItem();
+        return selectedTab != null && "Drones".equals(selectedTab.getText());
     }
 
     private void refreshHubList() {

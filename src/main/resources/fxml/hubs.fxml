@@ -97,7 +97,7 @@
                         <Label styleClass="card-title" text="Hub details" />
                         <Label styleClass="field-label" text="SELECT HUB" />
                         <ComboBox fx:id="hubSelectorCombo" maxWidth="Infinity" promptText="Select a hub..." styleClass="hub-selector" />
-                        <TabPane tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+                        <TabPane fx:id="hubDetailsTabPane" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
                           <tabs>
                             <Tab text="Drones">
                               <content>

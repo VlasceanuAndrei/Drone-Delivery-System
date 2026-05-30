@@ -10,6 +10,10 @@ public final class AuditService {
 
     private AuditService() {}
 
+    public static void audit(AuditActions action) {
+        audit(action.key);
+    }
+
     public static void audit(String actionName) {
         String line = actionName + ", " + Instant.now();
 

@@ -12,6 +12,7 @@ import andreiv.model.order.*;
 import andreiv.model.order.Package;
 import andreiv.model.personnel.*;
 import andreiv.service.*;
+import andreiv.audit.AuditActions;
 import andreiv.audit.AuditService;
 import andreiv.persistence.repository.*;
 
@@ -77,71 +78,71 @@ public class Main {
         scanner.nextLine();
         switch (input) {
             case 1 -> {
-                AuditService.audit("create_drone_hub");
+                AuditService.audit(AuditActions.CREATE_DRONE_HUB);
                 createDroneHub();
             }
             case 2 -> {
-                AuditService.audit("create_drone_and_add_to_hub");
+                AuditService.audit(AuditActions.CREATE_DRONE);
                 createDroneAndAddToHub();
             }
             case 3 -> {
-                AuditService.audit("move_drone_from_one_hub_to_another");
+                AuditService.audit(AuditActions.MOVE_DRONE);
                 moveDroneFromOneHubToAnother();
             }
             case 4 -> {
-                AuditService.audit("display_hub_fleet");
+                AuditService.audit(AuditActions.DISPLAY_FLEET_FOR_HUB);
                 displayHubFleet();
             }
             case 5 -> {
-                AuditService.audit("display_orders_from_hub");
+                AuditService.audit(AuditActions.DISPLAY_ORDERS_FOR_HUB);
                 displayOrdersFromHub();
             }
             case 6 -> {
-                AuditService.audit("perform_hub_maintenance");
+                AuditService.audit(AuditActions.PERFORM_HUB_MAINTENANCE);
                 performHubMaintenance();
             }
             case 7 -> {
-                AuditService.audit("create_order");
+                AuditService.audit(AuditActions.CREATE_ORDER);
                 createOrder();
             }
             case 8 -> {
-                AuditService.audit("pickup_uncollected_orders");
+                AuditService.audit(AuditActions.PICKUP_UNCOLLECTED_ORDERS);
                 pickupUncollectedOrders();
             }
             case 9 -> {
-                AuditService.audit("deliver_orders");
+                AuditService.audit(AuditActions.DELIVER_ORDERS);
                 deliverOrders();
             }
             case 10 -> {
-                AuditService.audit("add_personnel_to_hub");
+                AuditService.audit(AuditActions.ADD_PERSONNEL_TO_HUB);
                 addPersonnelToHub();
             }
             case 11 -> {
-                AuditService.audit("display_hub_crew");
+                AuditService.audit(AuditActions.DISPLAY_HUB_CREW);
                 displayHubCrew();
             }
             case 12 -> {
-                AuditService.audit("display_available_drones_from_hub");
+                AuditService.audit(AuditActions.DISPLAY_AVAILABLE_DRONES_FROM_HUB);
                 displayAvailableDronesFromHub();
             }
             case 13 -> {
-                AuditService.audit("display_uncollected_orders");
+                AuditService.audit(AuditActions.DISPLAY_UNCOLLECTED_ORDERS);
                 displayUncollectedOrders();
             }
             case 14 -> {
-                AuditService.audit("display_delivered_orders");
+                AuditService.audit(AuditActions.DISPLAY_DELIVERED_ORDERS);
                 displayDeliveredOrders();
             }
             case 15 -> {
-                AuditService.audit("check_hub_maintenance_status");
+                AuditService.audit(AuditActions.CHECK_HUB_MAINTENANCE);
                 checkHubMaintenanceStatus();
             }
             case 16 -> {
-                AuditService.audit("display_nearby_hubs_for_city");
+                AuditService.audit(AuditActions.DISPLAY_NEARBY_HUB_FOR_CITY);
                 displayNearbyHubsForCity();
             }
             case 0 -> {
-                AuditService.audit("exit_app");
+                AuditService.audit(AuditActions.EXIT_APP);
                 handleExit();
             }
             default -> System.out.println("Invalid input. Please try again.");

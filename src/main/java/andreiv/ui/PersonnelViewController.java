@@ -1,18 +1,18 @@
 package andreiv.ui;
 
+import andreiv.audit.AuditActions;
+import andreiv.audit.AuditService;
 import andreiv.model.PersonnelCertification;
 import andreiv.model.hub.DroneHub;
 import andreiv.model.personnel.Personnel;
-import andreiv.persistence.repository.DroneHubRepository;
-import andreiv.persistence.repository.PersonnelRepository;
+import andreiv.persistence.repository.*;
 import andreiv.service.OrderDispatcher;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.StringConverter;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class PersonnelViewController {
@@ -60,6 +60,8 @@ public class PersonnelViewController {
 
     @FXML
     private void onAddPersonnel() {
+        AuditService.audit(AuditActions.ADD_PERSONNEL_TO_HUB);
+
         if (!formValid()) {
             showError("Please fill in all fields and select a hub.");
             return;

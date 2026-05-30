@@ -55,6 +55,8 @@
                               <Label styleClass="field-label" text="MAX SPEED (KM/H)" />
                               <TextField fx:id="maxSpeedField" maxWidth="Infinity" promptText="Maximum speed..." />
                               <CheckBox fx:id="availableCheck" mnemonicParsing="false" selected="true" text="Drone is available" />
+                              <CheckBox fx:id="specifyMaintenanceCheck" mnemonicParsing="false" text="Specify last maintenance date (defaults to today's date, if not specified)" />
+                              <TextField fx:id="lastMaintenanceField" managed="false" maxWidth="Infinity" promptText="dd-MMM-yyyy, e.g. 20-Mar-2024" visible="false" />
                               <CheckBox fx:id="refrigeratedCheck" managed="false" mnemonicParsing="false" text="Can carry refrigerated packages" visible="false" />
                               <HBox>
                                  <children>
