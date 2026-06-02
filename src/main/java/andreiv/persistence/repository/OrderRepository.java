@@ -153,7 +153,7 @@ public final class OrderRepository implements BaseRepository<Order> {
         final String sql = """
                 SELECT id, sender_contact_id, receiver_contact_id, package_id
                 FROM orders
-                WHERE hub_id = ?
+                WHERE hub_id = ? AND status = 'IN_HUB'
                 ORDER BY created_at DESC
                 """;
 
@@ -193,6 +193,44 @@ public final class OrderRepository implements BaseRepository<Order> {
 
     public List<Order> getDeliveredOrders() {
         return findByStatus("DELIVERED");
+    }
+
+    public List<Order> getInHubOrders(UUID hubId) {
+        final String sql = """
+                SELECT id, sender_contact_id, receiver_contact_id, package_id
+                FROM orders
+                WHERE hub_id = ? AND status = 'IN_HUB'
+                ORDER BY created_at DESC
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, hubId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                List<Order> out = new ArrayList<>();
+
+                while (rs.next()) {
+                    UUID orderId = (UUID) rs.getObject("id");
+                    UUID senderId = (UUID) rs.getObject("sender_contact_id");
+                    UUID receiverId = (UUID) rs.getObject("receiver_contact_id");
+                    UUID packageId = (UUID) rs.getObject("package_id");
+
+                    Contact sender = contactRepository.findById(senderId)
+                            .orElseThrow(() -> new RuntimeException("Failed to load sender contact: " + senderId));
+                    Contact receiver = contactRepository.findById(receiverId)
+                            .orElseThrow(() -> new RuntimeException("Failed to load receiver contact: " + receiverId));
+                    Package pkg = packageRepository.findById(packageId)
+                            .orElseThrow(() -> new RuntimeException("Failed to load package: " + packageId));
+
+                    out.add(new Order(orderId, sender, receiver, pkg));
+                }
+
+                return out;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get in-hub orders for hub " + hubId + ": " + e.getMessage(), e);
+        }
     }
 
     private List<Order> findByStatus(String status) {
@@ -266,6 +304,29 @@ public final class OrderRepository implements BaseRepository<Order> {
             ps.executeUpdate();
         } catch (Exception e) {
             throw new RuntimeException("Failed to update order hub id: " + e.getMessage(), e);
+        }
+    }
+
+    public Optional<UUID> findAssignedDroneId(UUID orderId) {
+        final String sql = """
+                SELECT assigned_drone_id
+                FROM orders
+                WHERE id = ?
+                """;
+
+        try (Connection c = DbConnectionManager.getInstance().getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setObject(1, orderId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    return Optional.empty();
+                }
+                UUID droneId = (UUID) rs.getObject("assigned_drone_id");
+                return Optional.ofNullable(droneId);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to find assigned drone id for order " + orderId + ": " + e.getMessage(), e);
         }
     }
 

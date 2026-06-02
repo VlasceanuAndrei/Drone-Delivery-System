@@ -22,6 +22,7 @@ public class HubsViewController {
     private final DroneRepository droneRepository = DroneRepository.getInstance();
     private final PersonnelRepository personnelRepository = PersonnelRepository.getInstance();
     private final OrderRepository orderRepository = OrderRepository.getInstance();
+    private final AddressRepository addressRepository = AddressRepository.getInstance();
     private final OrderDispatcher dispatcher = OrderDispatcher.getInstance();
 
     @FXML private TextField hubNameField;
@@ -88,6 +89,7 @@ public class HubsViewController {
                     text(hubNumberField));
             DroneHub hub = new DroneHub(text(hubNameField), address);
 
+            addressRepository.save(address);
             hubRepository.save(hub);
             dispatcher.addHub(hub);
 

@@ -247,7 +247,11 @@ public class FleetViewController {
                 if (drone == null) {
                     return "";
                 }
-                return drone.getName() + " - " + drone.getClass().getSimpleName().replace("Drone", "").toLowerCase();
+                String typeLabel = drone.getClass().getSimpleName().replace("Drone", "").toLowerCase();
+                if (typeLabel.isBlank()) {
+                    typeLabel = "normal";
+                }
+                return drone.getName() + " - " + typeLabel;
             }
 
             @Override

@@ -126,10 +126,14 @@ public class OrdersViewController {
         AuditService.audit(AuditActions.DELIVER_ORDERS);
 
         try {
-            dispatcher.deliverOrders();
+            List<andreiv.model.order.Order> failed = dispatcher.deliverOrders();
             OrderStatusPersistence.syncOrderStatus();
             refreshOrdersTables();
-            showInfo("Picked up orders have been delivered.");
+            if (failed.isEmpty()) {
+                showInfo("All picked up orders have been delivered.");
+            } else {
+                showInfo(failed.size() + " order(s) could not be delivered. They remain at their hubs.");
+            }
         } catch (RuntimeException ex) {
             showError(ex.getMessage());
         }

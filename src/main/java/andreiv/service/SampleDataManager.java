@@ -20,6 +20,9 @@ public final class SampleDataManager {
             for (Personnel member : personnelRepository.findByHubId(hub.getId())) {
                 hub.addPersonnel(member);
             }
+            for (Order order : orderRepository.getInHubOrders(hub.getId())) {
+                hub.addOrder(order);
+            }
             boolean alreadyLoaded = dispatcher.getHubs().stream()
                     .anyMatch(h -> h.getId().equals(hub.getId()));
             if (!alreadyLoaded) {
@@ -28,6 +31,13 @@ public final class SampleDataManager {
         }
         for (Order order : orderRepository.getUncollectedOrders()) {
             dispatcher.addUncollectedOrder(order);
+        }
+
+        for (Order order : orderRepository.getDeliveredOrders()) {
+            dispatcher.getDeliveredOrders().add(order);
+            orderRepository.findAssignedDroneId(order.getId()).ifPresent(droneId ->
+                    droneRepository.findById(droneId).ifPresent(drone ->
+                            dispatcher.getAssignedDroneToOrder().put(order, drone)));
         }
     }
 }

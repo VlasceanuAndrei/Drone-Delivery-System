@@ -135,7 +135,9 @@ public class OrderDispatcher {
         }
     }
 
-    public void deliverOrders() {
+    public List<Order> deliverOrders() {
+        List<Order> undeliverableOrders = new ArrayList<>();
+
         for (DroneHub hub : hubs) {
             // stores the normalized bearing angle (the treeMap's key) for each order inside the hub
             TreeMap<Integer, List<Order>> ordersByBearingAngle = new TreeMap<>();
@@ -213,12 +215,19 @@ public class OrderDispatcher {
                             }
 
                             if (currentBatch.isEmpty()) {
-                                System.out.println("Order (ID: " + order.getPackage().getId() + ") couldn't be assigned to a drone.");
+                                undeliverableOrders.add(order);
                                 break;
                             }
 
                             List<Drone> previousSuitableDrones = hub.getSuitableDronesForPath(packageRequirements, currentDistance, currentLoad);
                             if (previousSuitableDrones.isEmpty()) {
+                                undeliverableOrders.addAll(currentBatch);
+                                undeliverableOrders.add(order);
+                                currentBatch.clear();
+                                packageRequirements.clear();
+                                currentDistance = 0.0;
+                                currentLoad = 0.0;
+                                previousCoordinates = hubCoordinates.get();
                                 break;
                             }
 
@@ -248,5 +257,7 @@ public class OrderDispatcher {
                 }
             }
         }
+
+        return undeliverableOrders;
     }
 }
