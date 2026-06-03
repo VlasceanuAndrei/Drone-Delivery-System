@@ -11,6 +11,7 @@ import andreiv.model.order.Package;
 import andreiv.model.personnel.*;
 import andreiv.model.PackageRequirement;
 import andreiv.model.PersonnelCertification;
+import andreiv.persistence.repository.DroneRepository;
 
 public class DroneHub {
     private final UUID id;
@@ -20,7 +21,8 @@ public class DroneHub {
     private final List<Personnel> crew;
     private final Address address;
     private final List<Drone> dronesUnderMaintenance;
-    private final static int MAINTENANCE_THRESHOLD = 18;
+    private static final int MAINTENANCE_THRESHOLD = 18;
+    private static final DroneRepository droneRepository = DroneRepository.getInstance();
 
     public DroneHub(String name, Address address) {
         this(UUID.randomUUID(), name, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), address);
@@ -150,6 +152,7 @@ public class DroneHub {
             if (monthsBetween >= MAINTENANCE_THRESHOLD) {
                 dronesUnderMaintenance.add(drone);
                 drone.setAvailability(false);
+                droneRepository.update(drone);
                 return true;
             }
             return false;
@@ -168,7 +171,9 @@ public class DroneHub {
                     mechanic.assignToWork();
                     assignments.put(mechanic, drone);
                     fleet.add(drone);
+                    drone.setLastMaintenance(LocalDate.now());
                     drone.setAvailability(true);
+                    droneRepository.update(drone);
                     return true;
                 }
                 return false;

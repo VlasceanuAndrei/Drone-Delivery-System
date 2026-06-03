@@ -14,7 +14,7 @@ public class Drone implements DroneCapabilities{
     private final double maximumPayload;
     private final double maximumSpeed;
     private boolean isAvailable;
-    private final LocalDate lastMaintenance;
+    private LocalDate lastMaintenance;
     private double currentLoad;
 
     public Drone(String name, int flightRange, double maximumPayload,
@@ -78,6 +78,10 @@ public class Drone implements DroneCapabilities{
 
     public void setAvailability(boolean availability) {
         isAvailable = availability;
+    }
+
+    public void setLastMaintenance(LocalDate lastMaintenance) {
+        this.lastMaintenance = validateLastMaintenance(lastMaintenance);
     }
 
     private static int validateFlightRange(int flightRange) {

@@ -17,6 +17,7 @@ public enum AuditActions {
     DISPLAY_DELIVERED_ORDERS("display_delivered_orders"),
     CHECK_HUB_MAINTENANCE("check_hub_maintenance_status"),
     DISPLAY_NEARBY_HUB_FOR_CITY("display_nearby_hubs_for_city"),
+    DISPLAY_ALL_HUBS("display_all_hubs"),
     EXIT_APP("exit_app");
 
     public final String key;

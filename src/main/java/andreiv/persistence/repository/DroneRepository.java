@@ -129,24 +129,23 @@ public final class DroneRepository implements BaseRepository<Drone> {
     public void update(Drone entity) {
         final String sql = """
                 UPDATE drones
-                SET hub_id = ?, name = ?, type = ?, flight_range = ?, maximum_payload = ?, maximum_speed = ?,
+                SET name = ?, type = ?, flight_range = ?, maximum_payload = ?, maximum_speed = ?,
                     is_available = ?, last_maintenance = ?, current_load = ?, has_refrigerator = ?
                 WHERE id = ?
                 """;
 
         try (Connection c = DbConnectionManager.getInstance().getConnection();
         PreparedStatement ps = c.prepareStatement(sql)) {
-            ps.setObject(1, null);
-            ps.setString(2, entity.getName());
-            ps.setString(3, typeOf(entity));
-            ps.setInt(4, entity.getFlightRange());
-            ps.setDouble(5, entity.getMaximumPayload());
-            ps.setDouble(6, entity.getMaximumSpeed());
-            ps.setBoolean(7, entity.isAvailable());
-            ps.setDate(8, Date.valueOf(entity.getLastMaintenance()));
-            ps.setDouble(9, entity.getCurrentLoad());
-            ps.setObject(10, hasRefrigeratorOrNull(entity));
-            ps.setObject(11, entity.getId());
+            ps.setString(1, entity.getName());
+            ps.setString(2, typeOf(entity));
+            ps.setInt(3, entity.getFlightRange());
+            ps.setDouble(4, entity.getMaximumPayload());
+            ps.setDouble(5, entity.getMaximumSpeed());
+            ps.setBoolean(6, entity.isAvailable());
+            ps.setDate(7, Date.valueOf(entity.getLastMaintenance()));
+            ps.setDouble(8, entity.getCurrentLoad());
+            ps.setObject(9, hasRefrigeratorOrNull(entity));
+            ps.setObject(10, entity.getId());
 
             ps.executeUpdate();
         } catch (Exception e) {

@@ -70,6 +70,7 @@ public class Main {
         System.out.println("14. Show delivered Orders");
         System.out.println("15. Check Hub maintenance status");
         System.out.println("16. Show nearby Hubs for a City");
+        System.out.println("17. List all Hubs");
         System.out.println("0. Exit");
     }
 
@@ -140,6 +141,10 @@ public class Main {
             case 16 -> {
                 AuditService.audit(AuditActions.DISPLAY_NEARBY_HUB_FOR_CITY);
                 displayNearbyHubsForCity();
+            }
+            case 17 -> {
+                AuditService.audit(AuditActions.DISPLAY_ALL_HUBS);
+                displayAllHubs();
             }
             case 0 -> {
                 AuditService.audit(AuditActions.EXIT_APP);
@@ -457,6 +462,17 @@ public class Main {
                         order.getReceiver().getAddress().getCity() + ", " + order.getReceiver().getAddress().getCountry();
                 System.out.println("#" + orderCounter + " Delivered Order (ID: " + order.getId() + ") - route: " + route);
                 orderCounter++;
+            }
+        }
+    }
+
+    private static void displayAllHubs() {
+        if (hubList.isEmpty()) {
+            System.out.println("No hubs are currently registered.");
+        } else {
+            for (Integer hubIdKey : hubList.keySet()) {
+                DroneHub hub = hubList.get(hubIdKey);
+                System.out.println(hubIdKey + ": " + hub.getName() + " - " + hub.getAddress().getCity());
             }
         }
     }

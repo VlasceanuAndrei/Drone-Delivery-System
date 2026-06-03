@@ -138,6 +138,7 @@ public class HubsViewController {
             } else {
                 showInfo(movedToMaintenance + " drones have been moved to maintenance.");
             }
+            refreshHubList();
         } catch (RuntimeException ex) {
             showError(ex.getMessage());
         }
@@ -164,6 +165,7 @@ public class HubsViewController {
             hubToPerformMaintenance.performMaintenance();
             maintenanceHubCombo.setValue(null);
             showInfo("Maintenance performed successfully for " + hubToPerformMaintenance.getName() + ".");
+            refreshHubList();
         } catch (RuntimeException ex) {
             showError(ex.getMessage());
         }
