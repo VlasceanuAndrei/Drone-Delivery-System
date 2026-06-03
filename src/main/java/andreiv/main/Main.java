@@ -229,7 +229,7 @@ public class Main {
 
         String droneType;
         while (true) {
-            System.out.print("Choose a drone type\nN - normal drone\nC - cargo drone\nH - high speed drone");
+            System.out.print("Choose a drone type\nN - normal drone\nC - cargo drone\nH - high speed drone\n");
             droneType = scanner.nextLine();
             if (droneType.equalsIgnoreCase("n") || droneType.equalsIgnoreCase("c") ||
                     droneType.equalsIgnoreCase("h")) {
@@ -245,7 +245,7 @@ public class Main {
         boolean droneRefrigerator = false;
         if (droneType.equals("c")) {
             while (true) {
-                System.out.print("Is the drone capable of carrying refrigerated packages? (y/n)");
+                System.out.print("Is the drone capable of carrying refrigerated packages? (y/n)\n");
                 droneRefrigeratorInput = scanner.nextLine();
                 if (droneRefrigeratorInput.equalsIgnoreCase("y")) {
                     droneRefrigerator = true;
@@ -356,11 +356,13 @@ public class Main {
     public static void pickupUncollectedOrders() {
         dispatcher.assignUncollectedOrdersToHubs();
         OrderStatusPersistence.syncOrderStatus();
+        System.out.println("Uncollected orders pickup routine done.");
     }
 
     public static void deliverOrders() {
         dispatcher.deliverOrders();
         OrderStatusPersistence.syncOrderStatus();
+        System.out.println("Deliver orders routine done.");
     }
 
     private static void addPersonnelToHub() {
